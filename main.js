@@ -188,7 +188,7 @@ window.addEventListener('scroll', handleScroll);
 const scroller = scrollama();
 scroller.setup({
     step: ".step",
-    offset: 0.2,
+    offset: 0.1,
     debug: false
 }).onStepEnter(({ element, index, progress }) => {
     const sections = ["intro", "gut-health", "breakfast", "lunch", "dinner"];
