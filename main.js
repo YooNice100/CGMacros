@@ -211,7 +211,7 @@ scroller.setup({
     // Show buttons when title is visible
     if (currentSection === "gut-health" && !state.gutHealth) {
         buttonContainer.classed("active", true);
-        createButtons(buttonContainer, ["Good Gut Health", "Bad Gut Health"], (value) => {
+        createButtons(buttonContainer, ["Bad Gut Health", "Average Gut Health", "Good Gut Health"], (value) => {
             state.gutHealth = value;
             buttonContainer.classed("active", false);
         });
@@ -268,7 +268,16 @@ function animateGlucosePlot(section, progress = 1, selectedCarb = null) {
     
     // Use the selected carb level or the current selection
     const effect = mealEffects[selectedCarb || state.mealSelections[section]];
-    const baseLevels = state.gutHealth === "good-gut-health" ? [100, 120, 140] : [120, 140, 160];
+    
+    // Set base levels based on gut health
+    let baseLevels;
+    if (state.gutHealth === "good-gut-health") {
+        baseLevels = [100, 120, 140];
+    } else if (state.gutHealth === "average-gut-health") {
+        baseLevels = [110, 130, 150];
+    } else {
+        baseLevels = [120, 140, 160];
+    }
     
     plots.forEach((plot, i) => {
         const data = Array.from({ length: 181 }, (_, j) => {
