@@ -154,29 +154,11 @@ function handleScroll(event) {
     const sections = ["intro", "gut-health", "breakfast", "lunch", "dinner"];
     const currentIndex = Math.floor(window.scrollY / window.innerHeight);
     
-    // Check if trying to scroll past a section without making required selections
+    // Only prevent scrolling past gut health section without a selection
     if (currentIndex > 1 && !state.gutHealth) {
         // Prevent scrolling past gut health section
         window.scrollTo({
             top: window.innerHeight,
-            behavior: 'smooth'
-        });
-    } else if (currentIndex > 2 && !state.mealSelections.breakfast) {
-        // Prevent scrolling past breakfast section
-        window.scrollTo({
-            top: window.innerHeight * 2,
-            behavior: 'smooth'
-        });
-    } else if (currentIndex > 3 && !state.mealSelections.lunch) {
-        // Prevent scrolling past lunch section
-        window.scrollTo({
-            top: window.innerHeight * 3,
-            behavior: 'smooth'
-        });
-    } else if (currentIndex > 4 && !state.mealSelections.dinner) {
-        // Prevent scrolling past dinner section
-        window.scrollTo({
-            top: window.innerHeight * 4,
             behavior: 'smooth'
         });
     }
@@ -236,51 +218,47 @@ scroller.setup({
     }
     
     if (["breakfast", "lunch", "dinner"].includes(currentSection)) {
-        // Hide plots if no selection made yet
+        // Show all plots immediately
         if (state.visualizations[currentSection] && state.visualizations[currentSection].plots) {
             state.visualizations[currentSection].plots.forEach(plot => {
-                plot.group.style("opacity", 0);
+                plot.group.style("opacity", 1);
             });
         }
         
+        // Show toggle buttons immediately when entering section
+        buttonContainer.classed("active", true);
+        createButtons(buttonContainer, ["Low Carb", "Medium Carb", "High Carb"], (value) => {
+            // Update the active state of buttons
+            buttonContainer.selectAll(".button")
+                .classed("active", false);
+            buttonContainer.select(`[data-value="${value}"]`)
+                .classed("active", true);
+            
+            // Animate the selected carb level
+            animateGlucosePlot(currentSection, 1, value);
+        });
+        
+        // Set initial selection if not set
         if (!state.mealSelections[currentSection]) {
-            // Show buttons immediately when entering section
-            buttonContainer.classed("active", true);
-            createButtons(buttonContainer, ["Low Carb", "Medium Carb", "High Carb"], (value) => {
-                state.mealSelections[currentSection] = value;
-                buttonContainer.classed("active", false);
-                
-                // Show plots after selection
-                if (state.visualizations[currentSection] && state.visualizations[currentSection].plots) {
-                    state.visualizations[currentSection].plots.forEach(plot => {
-                        plot.group.transition()
-                            .duration(500)
-                            .style("opacity", 1);
-                    });
-                }
-                
-                animateGlucosePlot(currentSection, 1);
-            });
+            state.mealSelections[currentSection] = "low-carb";
+            // Trigger initial animation
+            animateGlucosePlot(currentSection, 1, "low-carb");
         } else {
-            // Show plots if selection exists
-            if (state.visualizations[currentSection] && state.visualizations[currentSection].plots) {
-                state.visualizations[currentSection].plots.forEach(plot => {
-                    plot.group.style("opacity", 1);
-                });
-            }
-            animateGlucosePlot(currentSection, progress);
+            // Animate current selection
+            animateGlucosePlot(currentSection, 1, state.mealSelections[currentSection]);
         }
     }
 }).onStepExit(({ element, index }) => {
     const sections = ["intro", "gut-health", "breakfast", "lunch", "dinner"];
     const currentSection = sections[index];
     
-    if (["breakfast", "lunch", "dinner"].includes(currentSection)) {
+    // Only hide buttons when leaving the gut health section
+    if (currentSection === "gut-health") {
         buttonContainer.classed("active", false);
     }
 });
 
-function animateGlucosePlot(section, progress = 1) {
+function animateGlucosePlot(section, progress = 1, selectedCarb = null) {
     const { plots } = state.visualizations[section];
     const mealEffects = {
         "low-carb": { spike: 20, duration: 60 },
@@ -288,7 +266,8 @@ function animateGlucosePlot(section, progress = 1) {
         "high-carb": { spike: 60, duration: 90 }
     };
     
-    const effect = mealEffects[state.mealSelections[section]];
+    // Use the selected carb level or the current selection
+    const effect = mealEffects[selectedCarb || state.mealSelections[section]];
     const baseLevels = state.gutHealth === "good-gut-health" ? [100, 120, 140] : [120, 140, 160];
     
     plots.forEach((plot, i) => {
