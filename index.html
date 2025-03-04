@@ -1,9 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Proj 4</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Gut Microbiome Garden</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/scrollama"></script>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .step {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            position: relative;
+        }
+        .step.active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .step-title {
+            margin-bottom: 20px;
+        }
+        .visualization-container {
+            width: 100%;
+            height: 80vh;
+            position: relative;
+        }
+    </style>
 </head>
 <body>
+    <div class="step">
+        <div class="step-title">Breakfast</div>
+        <div class="visualization-container"></div>
+    </div>
+    <div class="step">
+        <div class="step-title">Lunch</div>
+        <div class="visualization-container"></div>
+    </div>
+    <div class="step">
+        <div class="step-title">Dinner</div>
+        <div class="visualization-container"></div>
+    </div>
+    <script src="main.js"></script>
 </body>
-</html> 
+</html>
