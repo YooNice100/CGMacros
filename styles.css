@@ -2,36 +2,107 @@ body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
+    overflow-x: hidden;
+    background-color: #f5f5f5;
 }
 
 .step {
     height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     font-size: 24px;
     font-weight: bold;
+    position: relative;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    pointer-events: none;
 }
 
-.meal-buttons {
+.step.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.step-title {
+    margin-bottom: 20px;
+    text-align: center;
+    padding: 0 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    position: relative;
+    z-index: 2;
+}
+
+.step.active .step-title {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.visualization-container {
+    width: 100%;
+    height: 80vh;
     position: fixed;
-    bottom: 20px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.button-container {
+    position: fixed;
+    bottom: 40px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
 }
 
-.meal-option {
-    margin: 0 10px;
-    padding: 8px 16px;
+.button-container.active {
+    display: block;
+    opacity: 1;
+}
+
+.button {
+    margin: 0 15px;
+    padding: 15px 30px;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     background-color: #4CAF50;
     color: white;
     cursor: pointer;
-    transition: background-color 0.3s;
+    font-size: 20px;
+    font-weight: bold;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.meal-option:hover {
+.button-container.active .button {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.button:hover {
     background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Meal-specific background colors */
+.step:nth-child(3) {
+    background-color: #FFDAB9;
+}
+
+.step:nth-child(4) {
+    background-color: #FFFACD;
+}
+
+.step:nth-child(5) {
+    background-color: #D8BFD8;
 } 

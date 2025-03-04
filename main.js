@@ -72,169 +72,244 @@ function createGlucosePlot(container, x, y, width, height, type) {
         .x(d => xScale(d.time))
         .y(d => yScale(d.value));
     
-    const data = Array.from({ length: 181 }, (_, i) => ({
-        time: i,
-        value: type === "Healthy" ? 100 : type === "Pre-Diabetic" ? 120 : 140
-    }));
-    
     const path = group.append("path")
-        .datum(data)
         .attr("fill", "none")
         .attr("stroke", type === "Healthy" ? "green" : type === "Pre-Diabetic" ? "orange" : "red")
-        .attr("stroke-width", 2)
-        .attr("d", line);
+        .attr("stroke-width", 2);
     
-    return { path, data, xScale, yScale };
+    return { path, xScale, yScale, line, group };
 }
 
-function createMealButtons() {
-    const buttonContainer = d3.select("body")
+function createButtonContainer() {
+    return d3.select("body")
         .append("div")
-        .attr("class", "meal-buttons")
-        .style("position", "fixed")
-        .style("bottom", "20px")
-        .style("left", "50%")
-        .style("transform", "translateX(-50%)")
-        .style("z-index", "1000");
-    
-    const mealTypes = ["High Carb", "Low Carb", "Balanced"];
-    mealTypes.forEach(type => {
-        buttonContainer.append("button")
-            .attr("class", "meal-option")
-            .attr("data-meal", type.toLowerCase().replace(" ", "-"))
-            .text(type)
-            .style("margin", "0 10px")
-            .style("padding", "8px 16px")
-            .style("border", "none")
-            .style("border-radius", "4px")
-            .style("background-color", "#4CAF50")
-            .style("color", "white")
-            .style("cursor", "pointer");
+        .attr("class", "button-container");
+}
+
+function createButtons(container, options, callback) {
+    container.selectAll("*").remove();
+    options.forEach((option, i) => {
+        container.append("button")
+            .attr("class", "button")
+            .text(option)
+            .attr("data-value", option.toLowerCase().replace(" ", "-"))
+            .style("transition-delay", `${i * 0.2}s`)
+            .on("click", function() {
+                const value = d3.select(this).attr("data-value");
+                callback(value);
+            });
     });
 }
 
-function initSection(container) {
+function initSection(container, type) {
     const svg = container.append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
     
-    const figures = ["Healthy", "Pre-Diabetic", "Diabetic"].map((type, i) => {
-        const x = (i + 1) * (width / 4);
-        const figure = drawStickFigure(svg, x, 100);
-        figure.attr("id", type);
-        return figure;
-    });
+    if (type === "intro") {
+        return { figures: null };
+    }
     
-    const plots = ["Healthy", "Pre-Diabetic", "Diabetic"].map((type, i) => {
-        const x = (i + 1) * (width / 4) - 100;
-        return createGlucosePlot(svg, x, height / 2, 200, 150, type);
-    });
+    if (type === "gut-health") {
+        const figures = ["Healthy", "Pre-Diabetic", "Diabetic"].map((type, i) => {
+            const x = (i + 1) * (width / 4);
+            const figure = drawStickFigure(svg, x, height / 2);
+            figure.attr("id", type);
+            return figure;
+        });
+        return { figures };
+    }
     
-    return { figures, plots };
+    if (["breakfast", "lunch", "dinner"].includes(type)) {
+        const plots = ["Healthy", "Pre-Diabetic", "Diabetic"].map((type, i) => {
+            const x = (i + 1) * (width / 4) - 100;
+            return createGlucosePlot(svg, x, height / 2, 200, 150, type);
+        });
+        return { plots };
+    }
 }
 
-let mealSelections = {
-    breakfast: null,
-    lunch: null,
-    dinner: null
+let state = {
+    gutHealth: null,
+    mealSelections: {
+        breakfast: null,
+        lunch: null,
+        dinner: null
+    },
+    visualizations: {
+        intro: null,
+        gutHealth: null,
+        breakfast: null,
+        lunch: null,
+        dinner: null
+    }
 };
 
-let visualizations = {
-    breakfast: null,
-    lunch: null,
-    dinner: null
-};
+const buttonContainer = createButtonContainer();
+
+// Create a function to handle scroll events
+function handleScroll(event) {
+    const sections = ["intro", "gut-health", "breakfast", "lunch", "dinner"];
+    const currentIndex = Math.floor(window.scrollY / window.innerHeight);
+    
+    // Check if trying to scroll past a section without making required selections
+    if (currentIndex > 1 && !state.gutHealth) {
+        // Prevent scrolling past gut health section
+        window.scrollTo({
+            top: window.innerHeight,
+            behavior: 'smooth'
+        });
+    } else if (currentIndex > 2 && !state.mealSelections.breakfast) {
+        // Prevent scrolling past breakfast section
+        window.scrollTo({
+            top: window.innerHeight * 2,
+            behavior: 'smooth'
+        });
+    } else if (currentIndex > 3 && !state.mealSelections.lunch) {
+        // Prevent scrolling past lunch section
+        window.scrollTo({
+            top: window.innerHeight * 3,
+            behavior: 'smooth'
+        });
+    } else if (currentIndex > 4 && !state.mealSelections.dinner) {
+        // Prevent scrolling past dinner section
+        window.scrollTo({
+            top: window.innerHeight * 4,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Add scroll event listener
+window.addEventListener('scroll', handleScroll);
 
 const scroller = scrollama();
 scroller.setup({
     step: ".step",
-    offset: 0.5,
+    offset: 0.2,
     debug: false
-}).onStepEnter(({ element, index }) => {
-    d3.select("body")
-        .transition()
-        .duration(1000)
-        .style("background-color", backgroundColors[Object.keys(backgroundColors)[index]]);
+}).onStepEnter(({ element, index, progress }) => {
+    const sections = ["intro", "gut-health", "breakfast", "lunch", "dinner"];
+    const currentSection = sections[index];
     
-    const currentSection = element.querySelector('.step-title').textContent.toLowerCase();
+    // Remove active class from all steps
+    d3.selectAll(".step").classed("active", false);
+    // Add active class to current step
+    d3.select(element).classed("active", true);
     
-    if (!visualizations[currentSection]) {
+    if (index >= 2) {
+        d3.select("body")
+            .transition()
+            .duration(1000)
+            .style("background-color", backgroundColors[currentSection]);
+    }
+    
+    if (!state.visualizations[currentSection]) {
         const container = element.querySelector('.visualization-container');
-        visualizations[currentSection] = initSection(d3.select(container));
+        state.visualizations[currentSection] = initSection(d3.select(container), currentSection);
     }
     
-    if (visualizations[currentSection]) {
-        const { plots } = visualizations[currentSection];
-        plots.forEach((plot, i) => {
-            const baseLevels = [100, 120, 140];
-            const mealEffect = mealSelections[currentSection];
-            
-            const newData = Array.from({ length: 181 }, (_, j) => {
-                const time = j;
-                let value = baseLevels[i];
-                
-                if (mealEffect) {
-                    const { spike, duration } = mealEffect;
-                    if (time >= 0 && time <= duration) {
-                        value += (spike * (1 - time / duration));
-                    }
-                }
-                
-                return { time, value };
+    // Handle stick figures visibility
+    if (currentSection === "gut-health") {
+        if (state.visualizations.gutHealth && state.visualizations.gutHealth.figures) {
+            state.visualizations.gutHealth.figures.forEach(figure => {
+                figure.style("opacity", 1);
             });
-            
-            plot.path.transition()
-                .duration(1000)
-                .attr("d", d3.line()
-                    .x(d => plot.xScale(d.time))
-                    .y(d => plot.yScale(d.value))(newData));
-        });
-    }
-});
-
-function updateGlucose(mealType) {
-    const mealEffects = {
-        "high-carb": { spike: 60, duration: 90 },
-        "low-carb": { spike: 20, duration: 60 },
-        "balanced": { spike: 40, duration: 75 }
-    };
-    
-    const currentSection = document.querySelector('.step.active .step-title')?.textContent.toLowerCase();
-    if (currentSection) {
-        mealSelections[currentSection] = mealEffects[mealType];
-        
-        if (visualizations[currentSection]) {
-            const { plots } = visualizations[currentSection];
-            plots.forEach((plot, i) => {
-                const effect = mealEffects[mealType];
-                const baseLevel = i === 0 ? 100 : i === 1 ? 120 : 140;
-                
-                const newData = Array.from({ length: 181 }, (_, j) => {
-                    const time = j;
-                    let value = baseLevel;
-                    
-                    if (time >= 0 && time <= effect.duration) {
-                        value += (effect.spike * (1 - time / effect.duration));
-                    }
-                    
-                    return { time, value };
-                });
-                
-                plot.path.transition()
-                    .duration(1000)
-                    .attr("d", d3.line()
-                        .x(d => plot.xScale(d.time))
-                        .y(d => plot.yScale(d.value))(newData));
+        }
+    } else {
+        if (state.visualizations.gutHealth && state.visualizations.gutHealth.figures) {
+            state.visualizations.gutHealth.figures.forEach(figure => {
+                figure.style("opacity", 0);
             });
         }
     }
-}
+    
+    // Show buttons when title is visible
+    if (currentSection === "gut-health" && !state.gutHealth) {
+        buttonContainer.classed("active", true);
+        createButtons(buttonContainer, ["Good Gut Health", "Bad Gut Health"], (value) => {
+            state.gutHealth = value;
+            buttonContainer.classed("active", false);
+        });
+    }
+    
+    if (["breakfast", "lunch", "dinner"].includes(currentSection)) {
+        // Hide plots if no selection made yet
+        if (state.visualizations[currentSection] && state.visualizations[currentSection].plots) {
+            state.visualizations[currentSection].plots.forEach(plot => {
+                plot.group.style("opacity", 0);
+            });
+        }
+        
+        if (!state.mealSelections[currentSection]) {
+            // Show buttons immediately when entering section
+            buttonContainer.classed("active", true);
+            createButtons(buttonContainer, ["Low Carb", "Medium Carb", "High Carb"], (value) => {
+                state.mealSelections[currentSection] = value;
+                buttonContainer.classed("active", false);
+                
+                // Show plots after selection
+                if (state.visualizations[currentSection] && state.visualizations[currentSection].plots) {
+                    state.visualizations[currentSection].plots.forEach(plot => {
+                        plot.group.transition()
+                            .duration(500)
+                            .style("opacity", 1);
+                    });
+                }
+                
+                animateGlucosePlot(currentSection, 1);
+            });
+        } else {
+            // Show plots if selection exists
+            if (state.visualizations[currentSection] && state.visualizations[currentSection].plots) {
+                state.visualizations[currentSection].plots.forEach(plot => {
+                    plot.group.style("opacity", 1);
+                });
+            }
+            animateGlucosePlot(currentSection, progress);
+        }
+    }
+}).onStepExit(({ element, index }) => {
+    const sections = ["intro", "gut-health", "breakfast", "lunch", "dinner"];
+    const currentSection = sections[index];
+    
+    if (["breakfast", "lunch", "dinner"].includes(currentSection)) {
+        buttonContainer.classed("active", false);
+    }
+});
 
-createMealButtons();
-
-d3.selectAll(".meal-option").on("click", function() {
-    const mealType = d3.select(this).attr("data-meal");
-    updateGlucose(mealType);
-}); 
+function animateGlucosePlot(section, progress = 1) {
+    const { plots } = state.visualizations[section];
+    const mealEffects = {
+        "low-carb": { spike: 20, duration: 60 },
+        "medium-carb": { spike: 40, duration: 75 },
+        "high-carb": { spike: 60, duration: 90 }
+    };
+    
+    const effect = mealEffects[state.mealSelections[section]];
+    const baseLevels = state.gutHealth === "good-gut-health" ? [100, 120, 140] : [120, 140, 160];
+    
+    plots.forEach((plot, i) => {
+        const data = Array.from({ length: 181 }, (_, j) => {
+            const time = j;
+            let value = baseLevels[i];
+            
+            if (time >= 0 && time <= effect.duration) {
+                value += (effect.spike * (1 - time / effect.duration));
+            }
+            
+            return { time, value };
+        });
+        
+        // Only show data up to the current progress
+        const currentData = data.slice(0, Math.floor(progress * data.length));
+        
+        plot.path
+            .datum(currentData)
+            .transition()
+            .duration(100)
+            .attr("d", plot.line);
+    });
+} 
