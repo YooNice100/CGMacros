@@ -230,6 +230,18 @@ function initSection(container, type) {
             figure.attr("id", type);
             return figure;
         });
+
+        // Add labels under each stick figure
+        ["Healthy", "Pre-Diabetic", "Diabetic"].forEach((type, i) => {
+            const x = (i + 1) * (width / 4);
+            svg.append("text")
+                .attr("x", x)
+                .attr("y", height / 2 + 90)
+                .attr("text-anchor", "middle")
+                .style("font-size", "14px")
+                .text(type === "Healthy" ? "No Diabetes" : type === "Pre-Diabetic" ? "Pre-Diabetes" : "Type 2 Diabetes");
+        });
+
         return { figures };
     }
     
@@ -296,6 +308,37 @@ scroller.setup({
             .duration(1000)
             .style("background-color", backgroundColors[currentSection]);
     }
+
+    // Position the dinner time title
+    if (currentSection === "dinner") {
+        const stepTitle = d3.select(element).select(".step-title");
+        stepTitle
+            .style("position", "fixed")
+            .style("top", "100px")
+            .style("left", "50%")
+            .style("transform", "translateX(-50%)")
+            .style("z-index", "1000")
+            .style("background-color", "transparent")
+            .style("padding", "0")
+            .style("border-radius", "0");
+        
+        d3.select(element)
+            .style("padding-top", "80px");
+    } else {
+        const stepTitle = d3.select(element).select(".step-title");
+        stepTitle
+            .style("position", "relative")
+            .style("top", "auto")
+            .style("left", "auto")
+            .style("transform", "none")
+            .style("z-index", "auto")
+            .style("background-color", "transparent")
+            .style("padding", "0")
+            .style("border-radius", "0");
+            
+        d3.select(element)
+            .style("padding-top", "0px");
+    }
     
     if (!state.visualizations[currentSection]) {
         const container = element.querySelector('.visualization-container');
@@ -342,14 +385,19 @@ scroller.setup({
                 .classed("active", false);
             buttonContainer.select(`[data-value="${value}"]`)
                 .classed("active", true);
+            state.mealSelections[currentSection] = value;
             animateGlucosePlot(currentSection, value);
         });
         
         if (!state.mealSelections[currentSection]) {
             state.mealSelections[currentSection] = "low-carb";
             animateGlucosePlot(currentSection, "low-carb");
+            buttonContainer.select(`[data-value="low-carb"]`)
+                .classed("active", true);
         } else {
             animateGlucosePlot(currentSection, state.mealSelections[currentSection]);
+            buttonContainer.select(`[data-value="${state.mealSelections[currentSection]}"]`)
+                .classed("active", true);
         }
     }
 }).onStepExit(({ element, index }) => {
@@ -424,6 +472,24 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
                 .transition()
                 .duration(1000)
                 .attr("d", plot.line);
+
+            // Remove any existing "no data" message
+            plot.group.selectAll(".no-data-message").remove();
+        } else {
+            // Clear the path
+            plot.path.attr("d", null);
+            
+            // Remove any existing "no data" message
+            plot.group.selectAll(".no-data-message").remove();
+            
+            // Add "no data" message
+            plot.group.append("text")
+                .attr("class", "no-data-message")
+                .attr("x", plot.xScale.range()[1] / 2)
+                .attr("y", plot.yScale.range()[0] / 2)
+                .attr("text-anchor", "middle")
+                .attr("fill", "gray")
+                .text("No data available for this combination");
         }
     });
 }
