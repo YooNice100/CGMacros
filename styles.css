@@ -53,23 +53,26 @@ body {
 
 .button-container {
     position: fixed;
-    bottom: 40px;
+    bottom: 60px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
     display: none;
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
+    white-space: nowrap;
 }
 
 .button-container.active {
-    display: block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     opacity: 1;
 }
 
 .button {
     margin: 0 15px;
-    padding: 15px 30px;
+    padding: 20px 30px;
     border: none;
     border-radius: 8px;
     background-color: #4CAF50;
@@ -81,6 +84,7 @@ body {
     transform: translateY(20px);
     transition: all 0.3s ease-in-out;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
 }
 
 .button.active {
