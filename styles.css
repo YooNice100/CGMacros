@@ -112,3 +112,34 @@ body {
 .step:nth-child(5) {
     background-color: #D8BFD8;
 } 
+
+
+#stick-figures {
+    display: flex;
+    justify-content: space-around;
+    position: sticky;
+    top: 50px;  /* Keeps them visible when scrolling */
+    z-index: 1000;
+}
+
+#diabetes-titles {
+    display: flex;
+    justify-content: space-around;
+    opacity: 0;  /* Initially hidden */
+    transition: opacity 0.5s ease-in-out;
+}
+
+#meal-phase-selection, #glucose-plots {
+    display: none; /* Hidden until user selects options */
+}
+
+h1, h2 {
+    text-align: center;
+    position: relative;
+    opacity: 0;  /* Titles pop in */
+    transition: opacity 0.5s ease-in-out;
+}
+
+.show {
+    opacity: 1;
+}
