@@ -104,7 +104,6 @@ body {
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Meal-specific background colors */
 .step:nth-child(3) {
     background-color: #FFDAB9;
 }
@@ -122,25 +121,25 @@ body {
     display: flex;
     justify-content: space-around;
     position: sticky;
-    top: 50px;  /* Keeps them visible when scrolling */
+    top: 50px; 
     z-index: 1000;
 }
 
 #diabetes-titles {
     display: flex;
     justify-content: space-around;
-    opacity: 0;  /* Initially hidden */
+    opacity: 0; 
     transition: opacity 0.5s ease-in-out;
 }
 
 #meal-phase-selection, #glucose-plots {
-    display: none; /* Hidden until user selects options */
+    display: none; 
 }
 
 h1, h2 {
     text-align: center;
     position: relative;
-    opacity: 0;  /* Titles pop in */
+    opacity: 0;  
     transition: opacity 0.5s ease-in-out;
 }
 
