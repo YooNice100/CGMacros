@@ -454,7 +454,7 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
             const endTime = new Date(startTime.getTime() + (3 * 60 * 60 * 1000));
 
             plot.xScale.domain([startTime, endTime]);
-            plot.yScale.domain([0, d3.max(sortedData, d => d.glucose) * 1.1]);
+            plot.yScale.domain([0, 400]);
 
             plot.xAxis.transition().duration(1000)
                 .call(d3.axisBottom(plot.xScale)
