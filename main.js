@@ -229,6 +229,100 @@ function initSection(container, type) {
     if (type === "intro") {
         return { figures: null };
     }
+
+    if (type === "meet-ben") {
+        const figure = drawStickFigure(svg, width / 2, height / 2, 2);
+        figure.attr("id", "ben-intro");
+        return { figures: [figure] };
+    }
+
+    if (type === "meet-tim") {
+        // Draw Ben small in top-left
+        const benFigure = drawStickFigure(svg, width / 4, height / 6, 0.8);
+        benFigure.attr("id", "ben-small");
+        
+        // Add Ben's label
+        svg.append("text")
+            .attr("x", width / 4)
+            .attr("y", height / 6 + 90)
+            .attr("text-anchor", "middle")
+            .style("font-size", "14px")
+            .text("Ben - No Diabetes");
+
+        // Draw Tim large in center
+        const timFigure = drawStickFigure(svg, width / 2, height / 2, 2);
+        timFigure.attr("id", "tim-intro");
+        
+        return { figures: [benFigure, timFigure] };
+    }
+
+    if (type === "meet-joey") {
+        // Draw Ben small in top-left
+        const benFigure = drawStickFigure(svg, width / 4, height / 6, 0.8);
+        benFigure.attr("id", "ben-small");
+        
+        // Add Ben's label
+        svg.append("text")
+            .attr("x", width / 4)
+            .attr("y", height / 6 + 90)
+            .attr("text-anchor", "middle")
+            .style("font-size", "14px")
+            .text("Ben - No Diabetes");
+
+        // Draw Tim small in top-center
+        const timFigure = drawStickFigure(svg, width / 2, height / 6, 0.8);
+        timFigure.attr("id", "tim-small");
+        
+        // Add Tim's label
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", height / 6 + 90)
+            .attr("text-anchor", "middle")
+            .style("font-size", "14px")
+            .text("Tim - Pre-Diabetes");
+
+        // Draw Joey large in center
+        const joeyFigure = drawStickFigure(svg, width / 2, height / 2, 2);
+        joeyFigure.attr("id", "joey-intro");
+        
+        return { figures: [benFigure, timFigure, joeyFigure] };
+    }
+
+    if (type === "compare") {
+        // Draw all three figures small at the top
+        const benFigure = drawStickFigure(svg, width / 4, height / 6, 0.8);
+        benFigure.attr("id", "ben-small");
+        
+        const timFigure = drawStickFigure(svg, width / 2, height / 6, 0.8);
+        timFigure.attr("id", "tim-small");
+        
+        const joeyFigure = drawStickFigure(svg, 3 * width / 4, height / 6, 0.8);
+        joeyFigure.attr("id", "joey-small");
+
+        // Add labels
+        svg.append("text")
+            .attr("x", width / 4)
+            .attr("y", height / 6 + 90)
+            .attr("text-anchor", "middle")
+            .style("font-size", "14px")
+            .text("Ben - No Diabetes");
+
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", height / 6 + 90)
+            .attr("text-anchor", "middle")
+            .style("font-size", "14px")
+            .text("Tim - Pre-Diabetes");
+
+        svg.append("text")
+            .attr("x", 3 * width / 4)
+            .attr("y", height / 6 + 90)
+            .attr("text-anchor", "middle")
+            .style("font-size", "14px")
+            .text("Joey - Type 2 Diabetes");
+
+        return { figures: [benFigure, timFigure, joeyFigure] };
+    }
     
     if (type === "gut-health") {
         const figures = ["Healthy", "Pre-Diabetic", "Diabetic"].map((type, i) => {
@@ -306,14 +400,16 @@ let state = {
 
 const buttonContainer = createButtonContainer();
 
-const sections = ["intro", "gut-health", "breakfast", "lunch", "dinner"];
+const sections = ["intro", "meet-ben", "meet-tim", "meet-joey", "compare", "gut-health", "breakfast", "lunch", "dinner"];
 
 function handleScroll(event) {
     const currentIndex = Math.floor(window.scrollY / window.innerHeight);
+    const currentSection = sections[currentIndex];
     
-    if (currentIndex > 1 && !state.gutHealth) {
+    // Only prevent scrolling if we're trying to scroll past the gut health section without making a selection
+    if (currentSection === "gut-health" && !state.gutHealth) {
         window.scrollTo({
-            top: window.innerHeight,
+            top: window.innerHeight * sections.indexOf("gut-health"),
             behavior: 'smooth'
         });
     }
@@ -335,7 +431,11 @@ scroller.setup({
     d3.selectAll(".step").classed("active", false);
     d3.select(element).classed("active", true);
     
-    if (index >= 2) {
+    // Always set background to white first
+    document.body.style.backgroundColor = "white";
+    
+    // Only apply colors for meal sections
+    if (["breakfast", "lunch", "dinner"].includes(currentSection)) {
         d3.select("body")
             .transition()
             .duration(1000)
@@ -433,6 +533,14 @@ scroller.setup({
     if (currentSection === "gut-health") {
         buttonContainer.classed("active", false);
     }
+    
+    // Clear background color when leaving meal sections
+    if (["breakfast", "lunch", "dinner"].includes(currentSection)) {
+        d3.select("body")
+            .transition()
+            .duration(1000)
+            .style("background-color", "white");
+    }
 });
 
 function animateGlucosePlot(mealPhase, selectedCarb) {
@@ -520,5 +628,22 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
         }
     });
 }
+
+// Add CSS for character description
+const style = document.createElement('style');
+style.textContent = `
+    .character-description {
+        text-align: center;
+        font-size: 24px;
+        margin-top: 20px;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+    }
+    
+    .step.active .character-description {
+        opacity: 1;
+    }
+`;
+document.head.appendChild(style);
 
 
