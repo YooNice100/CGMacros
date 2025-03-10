@@ -1,6 +1,6 @@
-const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+const margin = { top: 80, right: 50, bottom: 150, left: 50 };
 const width = window.innerWidth - margin.left - margin.right;
-const height = window.innerHeight * 0.8 - margin.top - margin.bottom;
+const height = window.innerHeight - margin.top - margin.bottom;
 
 const backgroundColors = { breakfast: "#FFDAB9", lunch: "#FFFACD", dinner: "#D8BFD8" };
 
@@ -77,7 +77,7 @@ function loadGutHealthData(gutHealthSelection) {
     });
 }
 
-function drawStickFigure(container, x, y, scale = 1) {
+function drawStickFigure(container, x, y, scale = 0.8) {
     const group = container.append("g")
         .attr("transform", `translate(${x},${y}) scale(${scale})`);
     
@@ -128,8 +128,9 @@ function createGlucosePlot(container, x, y, width, height, type) {
     
     group.append("text")
         .attr("x", width / 2)
-        .attr("y", -10)
+        .attr("y", -30)
         .attr("text-anchor", "middle")
+        .style("font-size", "14px")
         .text(type);
     
     const clipPath = group.append("defs")
@@ -194,7 +195,13 @@ function createGlucosePlot(container, x, y, width, height, type) {
 function createButtonContainer() {
     return d3.select("body")
         .append("div")
-        .attr("class", "button-container");
+        .attr("class", "button-container")
+        .style("position", "fixed")
+        .style("bottom", "20px")
+        .style("left", "50%")
+        .style("transform", "translateX(-50%)")
+        .style("text-align", "center")
+        .style("z-index", "1000");
 }
 
 function createButtons(container, options, callback) {
@@ -246,11 +253,37 @@ function initSection(container, type) {
     }
     
     if (["breakfast", "lunch", "dinner"].includes(type)) {
-        const plots = ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"].map((type, i) => {
-            const x = (i + 1) * (width / 4) - 100;
-            return createGlucosePlot(svg, x, height / 2, 200, 150, type);
+        // Add title at the top
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", 30)
+            .attr("text-anchor", "middle")
+            .style("font-size", "24px")
+            .style("font-weight", "bold")
+            .text(type.charAt(0).toUpperCase() + type.slice(1));
+
+        const figures = ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"].map((diabetesType, i) => {
+            const x = (i + 1) * (width / 4);
+            const figure = drawStickFigure(svg, x, height / 4);
+            figure.attr("id", `${type}-${diabetesType}`);
+            
+            // Add diabetes type label under stick figure
+            svg.append("text")
+                .attr("x", x)
+                .attr("y", height / 4 + 90)
+                .attr("text-anchor", "middle")
+                .style("font-size", "14px")
+                .text(diabetesType);
+                
+            return figure;
         });
-        return { plots };
+
+        const plots = ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"].map((diabetesType, i) => {
+            const x = (i + 1) * (width / 4) - 100;
+            return createGlucosePlot(svg, x, height / 2, 200, 150, diabetesType);
+        });
+
+        return { figures, plots };
     }
 }
 
@@ -308,37 +341,6 @@ scroller.setup({
             .duration(1000)
             .style("background-color", backgroundColors[currentSection]);
     }
-
-    // Position the dinner time title
-    if (currentSection === "dinner") {
-        const stepTitle = d3.select(element).select(".step-title");
-        stepTitle
-            .style("position", "fixed")
-            .style("top", "100px")
-            .style("left", "50%")
-            .style("transform", "translateX(-50%)")
-            .style("z-index", "1000")
-            .style("background-color", "transparent")
-            .style("padding", "0")
-            .style("border-radius", "0");
-        
-        d3.select(element)
-            .style("padding-top", "80px");
-    } else {
-        const stepTitle = d3.select(element).select(".step-title");
-        stepTitle
-            .style("position", "relative")
-            .style("top", "auto")
-            .style("left", "auto")
-            .style("transform", "none")
-            .style("z-index", "auto")
-            .style("background-color", "transparent")
-            .style("padding", "0")
-            .style("border-radius", "0");
-            
-        d3.select(element)
-            .style("padding-top", "0px");
-    }
     
     if (!state.visualizations[currentSection]) {
         const container = element.querySelector('.visualization-container');
@@ -369,10 +371,18 @@ scroller.setup({
     }
 
     if (["breakfast", "lunch", "dinner"].includes(currentSection)) {
-        if (state.visualizations[currentSection] && state.visualizations[currentSection].plots) {
-            state.visualizations[currentSection].plots.forEach(plot => {
-                plot.group.style("opacity", 1);
-            });
+        const visualization = state.visualizations[currentSection];
+        if (visualization) {
+            if (visualization.figures) {
+                visualization.figures.forEach(figure => {
+                    figure.style("opacity", 1);
+                });
+            }
+            if (visualization.plots) {
+                visualization.plots.forEach(plot => {
+                    plot.group.style("opacity", 1);
+                });
+            }
         }
         
         buttonContainer.classed("active", true);
@@ -399,6 +409,23 @@ scroller.setup({
             buttonContainer.select(`[data-value="${state.mealSelections[currentSection]}"]`)
                 .classed("active", true);
         }
+    } else {
+        const mealSections = ["breakfast", "lunch", "dinner"];
+        mealSections.forEach(section => {
+            const visualization = state.visualizations[section];
+            if (visualization) {
+                if (visualization.figures) {
+                    visualization.figures.forEach(figure => {
+                        figure.style("opacity", 0);
+                    });
+                }
+                if (visualization.plots) {
+                    visualization.plots.forEach(plot => {
+                        plot.group.style("opacity", 0);
+                    });
+                }
+            }
+        });
     }
 }).onStepExit(({ element, index }) => {
     const currentSection = sections[index];
