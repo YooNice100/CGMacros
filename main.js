@@ -1,11 +1,6 @@
 const baseWidth = 1920; // Base width for scaling
 const baseHeight = 1080; // Base height for scaling
-const margin = {
-    top: Math.round(80 * (window.innerHeight / baseHeight)),
-    right: Math.round(50 * (window.innerWidth / baseWidth)),
-    bottom: Math.round(150 * (window.innerHeight / baseHeight)),
-    left: Math.round(50 * (window.innerWidth / baseWidth))
-};
+const margin = { top: 80, right: 50, bottom: 150, left: 50 };
 
 // Calculate the scale factor based on the current window size
 const scaleFactor = Math.min(
@@ -13,8 +8,8 @@ const scaleFactor = Math.min(
     window.innerHeight / baseHeight
 );
 
-const width = baseWidth * scaleFactor - margin.left - margin.right;
-const height = baseHeight * scaleFactor - margin.top - margin.bottom;
+let width = window.innerWidth - margin.left - margin.right;
+const height = window.innerHeight - margin.top - margin.bottom;
 
 const backgroundColors = { 
     intro: "#FFFACD",         // Light yellow for all intro sections
@@ -775,9 +770,17 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
     };
     const mappedMealPhase = mealMapping[mealPhase];
 
-    const filteredData = state.glucoseData.filter(d => {
-        const matches = d.mealPhase === mappedMealPhase && d.carbCategory === mappedCarb;
-        return matches;
+    let filteredData = state.glucoseData.filter(d => {
+        // Special case for average gut health, pre-diabetic, lunch, low carb
+        if (state.gutHealth === "average-gut-health" && 
+            d.diabetesStatus === "Pre-Diabetes" && 
+            mappedMealPhase === "Lunch Phase" && 
+            mappedCarb === "Low") {
+            return d.subject === "41" && d.mealPhase === mappedMealPhase && d.carbCategory === mappedCarb;
+        }
+        
+        // Default filtering
+        return d.mealPhase === mappedMealPhase && d.carbCategory === mappedCarb;
     });
 
     let groupedData = d3.group(filteredData, d => d.diabetesStatus);
@@ -906,8 +909,8 @@ window.addEventListener('resize', () => {
     margin.bottom = Math.round(150 * (window.innerHeight / baseHeight));
     margin.left = Math.round(50 * (window.innerWidth / baseWidth));
     
-    width = baseWidth * newScaleFactor - margin.left - margin.right;
-    height = baseHeight * newScaleFactor - margin.top - margin.bottom;
+    width = window.innerWidth - margin.left - margin.right;
+    height = window.innerHeight - margin.top - margin.bottom;
     
     // Redraw the current section
     const currentIndex = Math.floor(window.scrollY / window.innerHeight);
