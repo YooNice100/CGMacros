@@ -218,6 +218,13 @@ function createGlucosePlot(container, x, y, width, height, type) {
         .attr("stroke", "white")
         .attr("stroke-width", 2);
 
+    // Add guide lines
+    focus.append("line")
+        .attr("class", "guide-x")
+        .attr("stroke", type === "No Diabetes" ? "green" : type === "Pre-Diabetes" ? "orange" : "red")
+        .attr("stroke-width", 1)
+        .attr("stroke-dasharray", "3,3");
+
     function mousemove(event) {
         const bisect = d3.bisector(d => d.timestamp).left;
         const mouseX = d3.pointer(event)[0];
@@ -232,14 +239,32 @@ function createGlucosePlot(container, x, y, width, height, type) {
         
         const d = x0 - d0.timestamp > d1.timestamp - x0 ? d1 : d0;
         
-        focus.attr("transform", `translate(${xScale(d.timestamp)},${yScale(d.glucose)})`);
+        const xPos = xScale(d.timestamp);
+        const yPos = yScale(d.glucose);
+
+        // Update circle position
+        focus.attr("transform", `translate(${xPos},${yPos})`);
         focus.style("display", null);
+
+        // Update guide line (vertical only)
+        focus.select(".guide-x")
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", 0)
+            .attr("y2", height - yPos);
         
         const timeAfterMeal = d3.timeHour.count(data[0].timestamp, d.timestamp);
+        
+        // Format gut health status for display
+        const gutHealthDisplay = state.gutHealth
+            .split('-')[0]
+            .charAt(0).toUpperCase() + state.gutHealth.split('-')[0].slice(1);
+            
         tooltip.html(`
             <strong>${type}</strong><br/>
             Time: ${timeAfterMeal}hr<br/>
-            Glucose: ${Math.round(d.glucose)} mg/dL
+            Glucose: ${Math.round(d.glucose)} mg/dL<br/>
+            Gut Health: ${gutHealthDisplay}
         `)
         .style("left", (event.pageX + 10) + "px")
         .style("top", (event.pageY - 10) + "px")
