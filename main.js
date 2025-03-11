@@ -285,6 +285,74 @@ function createButtons(container, options, callback) {
     });
 }
 
+function getMealMacros(mealPhase, carbLevel) {
+    // Define macronutrient information for each meal and carb level
+    const macros = {
+        breakfast: {
+            "low-carb": {
+                carbs: "15g carbs",
+                protein: "20g protein",
+                fat: "15g fat",
+                examples: "Eggs with avocado"
+            },
+            "medium-carb": {
+                carbs: "30g carbs",
+                protein: "20g protein",
+                fat: "10g fat",
+                examples: "Oatmeal with berries"
+            },
+            "high-carb": {
+                carbs: "45g carbs",
+                protein: "15g protein",
+                fat: "5g fat",
+                examples: "Pancakes with syrup"
+            }
+        },
+        lunch: {
+            "low-carb": {
+                carbs: "20g carbs",
+                protein: "25g protein",
+                fat: "15g fat",
+                examples: "Grilled chicken salad"
+            },
+            "medium-carb": {
+                carbs: "45g carbs",
+                protein: "20g protein",
+                fat: "10g fat",
+                examples: "Turkey sandwich"
+            },
+            "high-carb": {
+                carbs: "60g carbs",
+                protein: "15g protein",
+                fat: "8g fat",
+                examples: "Pasta with marinara"
+            }
+        },
+        dinner: {
+            "low-carb": {
+                carbs: "20g carbs",
+                protein: "30g protein",
+                fat: "15g fat",
+                examples: "Grilled salmon with vegetables"
+            },
+            "medium-carb": {
+                carbs: "45g carbs",
+                protein: "25g protein",
+                fat: "12g fat",
+                examples: "Rice bowl with chicken"
+            },
+            "high-carb": {
+                carbs: "70g carbs",
+                protein: "20g protein",
+                fat: "10g fat",
+                examples: "Pizza"
+            }
+        }
+    };
+    
+    return macros[mealPhase][carbLevel];
+}
+
 function initSection(container, type) {
     const svg = container.append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -415,6 +483,14 @@ function initSection(container, type) {
     }
     
     if (["breakfast", "lunch", "dinner"].includes(type)) {
+        // Create tooltip div if it doesn't exist
+        let mealTooltip = d3.select("body").select(".meal-tooltip");
+        if (mealTooltip.empty()) {
+            mealTooltip = d3.select("body").append("div")
+                .attr("class", "meal-tooltip")
+                .style("opacity", 0);
+        }
+
         // Add title at the top
         svg.append("text")
             .attr("x", width / 2)
@@ -425,7 +501,6 @@ function initSection(container, type) {
             .text(type.charAt(0).toUpperCase() + type.slice(1));
 
         const figures = ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"].map((diabetesType, i) => {
-            // Adjust spacing to use 1/6, 3/6, and 5/6 of width instead of 1/4, 2/4, and 3/4
             const x = ((i * 2) + 1) * (width / 6);
             const figure = drawStickFigure(svg, x, height / 6);
             figure.attr("id", `${type}-${diabetesType}`);
@@ -439,14 +514,46 @@ function initSection(container, type) {
                 .text(diabetesType === "No Diabetes" ? "Ben - No Diabetes" : 
                      diabetesType === "Pre-Diabetes" ? "Tim - Pre-Diabetes" : 
                      "Joey - Type 2 Diabetes");
+
+            // Add hover area for the stick figure
+            const hoverArea = svg.append("rect")
+                .attr("x", x - 30)
+                .attr("y", height / 6 - 30)
+                .attr("width", 60)
+                .attr("height", 120)
+                .style("fill", "transparent")
+                .style("cursor", "pointer");
+
+            // Add hover interactions
+            hoverArea
+                .on("mouseover", function(event) {
+                    const currentCarb = state.mealSelections[type] || "low-carb";
+                    const macros = getMealMacros(type, currentCarb);
+                    
+                    // Calculate fixed position relative to the stick figure
+                    const figureRect = this.getBoundingClientRect();
+                    const tooltipX = figureRect.right + window.scrollX + 20; // 20px to the right of the figure
+                    const tooltipY = figureRect.top + window.scrollY + (figureRect.height / 2) - 30; // Vertically centered
+                    
+                    mealTooltip.html(`
+                        <strong>${currentCarb.replace("-", " ").replace(/(^\w|\s\w)/g, m => m.toUpperCase())}</strong>
+                        ${macros.carbs} • ${macros.protein} • ${macros.fat}<br/>
+                        <em>${macros.examples}</em>
+                    `)
+                    .style("left", tooltipX + "px")
+                    .style("top", tooltipY + "px")
+                    .style("opacity", 1);
+                })
+                .on("mouseout", function() {
+                    mealTooltip.style("opacity", 0);
+                });
                 
             return figure;
         });
 
         const plots = ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"].map((diabetesType, i) => {
-            const plotWidth = 400;  // Increased from 350
-            const plotHeight = 300;  // Increased from 250 to 300
-            // Use same x-coordinate calculation as figures
+            const plotWidth = 400;
+            const plotHeight = 300;
             const x = ((i * 2) + 1) * (width / 6) - (plotWidth / 2);
             return createGlucosePlot(svg, x, height / 2.5, plotWidth, plotHeight, diabetesType);
         });
@@ -707,15 +814,38 @@ style.textContent = `
         opacity: 1;
     }
 
-    .tooltip {
+    .tooltip, .meal-tooltip {
         position: absolute;
-        padding: 8px;
-        background: rgba(255, 255, 255, 0.9);
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.95);
         border: 1px solid #ddd;
-        border-radius: 4px;
+        border-radius: 6px;
         pointer-events: none;
         font-size: 12px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: opacity 0.2s ease;
+        line-height: 1.4;
+        z-index: 1000;
+    }
+
+    .meal-tooltip {
+        max-width: 180px;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .meal-tooltip strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 13px;
+    }
+
+    .meal-tooltip em {
+        display: block;
+        margin-top: 4px;
+        color: #666;
+        font-size: 11px;
+        font-style: italic;
     }
 
     .focus circle {
