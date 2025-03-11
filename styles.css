@@ -26,19 +26,57 @@ body {
 }
 
 .step-title {
-    margin-bottom: 20px;
     text-align: center;
-    padding: 0 20px;
+    font-size: 24px;
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-    position: relative;
-    z-index: 2;
+    transition: all 0.8s ease-out;
+    z-index: 1000;
+    width: 100%;
 }
 
-.step.active .step-title {
+/* Style for the intro title - centered in page */
+.step:first-child .step-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Style for all other titles - fixed position lower on the page */
+.step:not(:first-child) .step-title {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translate(-50%, -100%);
+}
+
+.step.active:first-child .step-title {
+    transform: translate(-50%, -50%);
     opacity: 1;
-    transform: translateY(0);
+}
+
+.step.active:not(:first-child) .step-title {
+    transform: translate(-50%, 0);
+    opacity: 1;
+}
+
+.character-description {
+    position: fixed;
+    top: 160px;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    text-align: center;
+    font-size: 24px;
+    opacity: 0;
+    transition: all 0.8s ease-out;
+    transition-delay: 0.3s;
+    z-index: 1000;
+    width: 100%;
+}
+
+.step.active .character-description {
+    transform: translate(-50%, 0);
+    opacity: 1;
 }
 
 .visualization-container {
