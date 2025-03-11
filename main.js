@@ -532,7 +532,10 @@ function initSection(container, type) {
             .attr("text-anchor", "middle")
             .style("font-size", "24px")
             .style("font-weight", "bold")
-            .text(type.charAt(0).toUpperCase() + type.slice(1));
+            .text(type === "breakfast" ? "Time to wake up! What kind of breakfast are you feeling?" : 
+                  type === "lunch" ? "It's time for lunch. Do you want something light, filling, or somewhere in between?" :
+                  type === "dinner" ? "Almost done with the day. What's for dinner?" :
+                  type.charAt(0).toUpperCase() + type.slice(1));
 
         const figures = ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"].map((diabetesType, i) => {
             const x = ((i * 2) + 1) * (width / 6);
