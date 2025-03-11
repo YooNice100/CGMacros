@@ -136,13 +136,6 @@ function createGlucosePlot(container, x, y, width, height, type) {
     const group = container.append("g")
         .attr("transform", `translate(${x},${y})`);
     
-    group.append("text")
-        .attr("x", width / 2)
-        .attr("y", -30)
-        .attr("text-anchor", "middle")
-        .style("font-size", "14px")
-        .text(type);
-    
     const clipPath = group.append("defs")
         .append("clipPath")
         .attr("id", `clip-${type.replace(/\s+/g, '-').toLowerCase()}`)
@@ -371,13 +364,15 @@ function initSection(container, type) {
             const figure = drawStickFigure(svg, x, height / 4);
             figure.attr("id", `${type}-${diabetesType}`);
             
-            // Add diabetes type label under stick figure
+            // Add character name and diabetes type label under stick figure
             svg.append("text")
                 .attr("x", x)
                 .attr("y", height / 4 + 90)
                 .attr("text-anchor", "middle")
                 .style("font-size", "14px")
-                .text(diabetesType);
+                .text(diabetesType === "No Diabetes" ? "Ben - No Diabetes" : 
+                     diabetesType === "Pre-Diabetes" ? "Tim - Pre-Diabetes" : 
+                     "Joey - Type 2 Diabetes");
                 
             return figure;
         });
