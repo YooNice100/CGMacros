@@ -360,14 +360,15 @@ function initSection(container, type) {
             .text(type.charAt(0).toUpperCase() + type.slice(1));
 
         const figures = ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"].map((diabetesType, i) => {
-            const x = (i + 1) * (width / 4);
-            const figure = drawStickFigure(svg, x, height / 4);
+            // Adjust spacing to use 1/6, 3/6, and 5/6 of width instead of 1/4, 2/4, and 3/4
+            const x = ((i * 2) + 1) * (width / 6);
+            const figure = drawStickFigure(svg, x, height / 6);
             figure.attr("id", `${type}-${diabetesType}`);
             
             // Add character name and diabetes type label under stick figure
             svg.append("text")
                 .attr("x", x)
-                .attr("y", height / 4 + 90)
+                .attr("y", height / 6 + 90)
                 .attr("text-anchor", "middle")
                 .style("font-size", "14px")
                 .text(diabetesType === "No Diabetes" ? "Ben - No Diabetes" : 
@@ -378,8 +379,11 @@ function initSection(container, type) {
         });
 
         const plots = ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"].map((diabetesType, i) => {
-            const x = (i + 1) * (width / 4) - 100;
-            return createGlucosePlot(svg, x, height / 2, 200, 150, diabetesType);
+            const plotWidth = 400;  // Increased from 350
+            const plotHeight = 300;  // Increased from 250 to 300
+            // Use same x-coordinate calculation as figures
+            const x = ((i * 2) + 1) * (width / 6) - (plotWidth / 2);
+            return createGlucosePlot(svg, x, height / 2.5, plotWidth, plotHeight, diabetesType);
         });
 
         return { figures, plots };
