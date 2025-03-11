@@ -1,6 +1,20 @@
-const margin = { top: 80, right: 50, bottom: 150, left: 50 };
-const width = window.innerWidth - margin.left - margin.right;
-const height = window.innerHeight - margin.top - margin.bottom;
+const baseWidth = 1920; // Base width for scaling
+const baseHeight = 1080; // Base height for scaling
+const margin = {
+    top: Math.round(80 * (window.innerHeight / baseHeight)),
+    right: Math.round(50 * (window.innerWidth / baseWidth)),
+    bottom: Math.round(150 * (window.innerHeight / baseHeight)),
+    left: Math.round(50 * (window.innerWidth / baseWidth))
+};
+
+// Calculate the scale factor based on the current window size
+const scaleFactor = Math.min(
+    window.innerWidth / baseWidth,
+    window.innerHeight / baseHeight
+);
+
+const width = baseWidth * scaleFactor - margin.left - margin.right;
+const height = baseHeight * scaleFactor - margin.top - margin.bottom;
 
 const backgroundColors = { 
     intro: "#FFFACD",         // Light yellow for all intro sections
@@ -577,8 +591,8 @@ function initSection(container, type) {
         });
 
         const plots = ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"].map((diabetesType, i) => {
-            const plotWidth = 400;
-            const plotHeight = 300;
+            const plotWidth = Math.round(400 * scaleFactor);
+            const plotHeight = Math.round(300 * scaleFactor);
             const x = ((i * 2) + 1) * (width / 6) - (plotWidth / 2);
             return createGlucosePlot(svg, x, height / 2.5, plotWidth, plotHeight, diabetesType);
         });
@@ -829,8 +843,8 @@ style.textContent = `
 
     .character-description {
         text-align: center;
-        font-size: 24px;
-        margin-top: 20px;
+        font-size: ${Math.round(24 * scaleFactor)}px;
+        margin-top: ${Math.round(20 * scaleFactor)}px;
         opacity: 0;
         transition: opacity 0.5s ease-in-out;
     }
@@ -841,42 +855,73 @@ style.textContent = `
 
     .tooltip, .meal-tooltip {
         position: absolute;
-        padding: 8px 12px;
+        padding: ${Math.round(8 * scaleFactor)}px ${Math.round(12 * scaleFactor)}px;
         background: rgba(255, 255, 255, 0.95);
         border: 1px solid #ddd;
-        border-radius: 6px;
+        border-radius: ${Math.round(6 * scaleFactor)}px;
         pointer-events: none;
-        font-size: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        font-size: ${Math.round(12 * scaleFactor)}px;
+        box-shadow: 0 ${Math.round(2 * scaleFactor)}px ${Math.round(4 * scaleFactor)}px rgba(0,0,0,0.1);
         transition: opacity 0.2s ease;
         line-height: 1.4;
         z-index: 1000;
     }
 
     .meal-tooltip {
-        max-width: 180px;
+        max-width: ${Math.round(180 * scaleFactor)}px;
         text-align: left;
         white-space: nowrap;
     }
 
     .meal-tooltip strong {
         display: block;
-        margin-bottom: 4px;
-        font-size: 13px;
+        margin-bottom: ${Math.round(4 * scaleFactor)}px;
+        font-size: ${Math.round(13 * scaleFactor)}px;
     }
 
     .meal-tooltip em {
         display: block;
-        margin-top: 4px;
+        margin-top: ${Math.round(4 * scaleFactor)}px;
         color: #666;
-        font-size: 11px;
+        font-size: ${Math.round(11 * scaleFactor)}px;
         font-style: italic;
     }
 
     .focus circle {
-        filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+        filter: drop-shadow(0 ${Math.round(2 * scaleFactor)}px ${Math.round(2 * scaleFactor)}px rgba(0,0,0,0.2));
     }
 `;
 document.head.appendChild(style);
+
+// Add window resize handler
+window.addEventListener('resize', () => {
+    const newScaleFactor = Math.min(
+        window.innerWidth / baseWidth,
+        window.innerHeight / baseHeight
+    );
+    
+    // Update margin and dimensions
+    margin.top = Math.round(80 * (window.innerHeight / baseHeight));
+    margin.right = Math.round(50 * (window.innerWidth / baseWidth));
+    margin.bottom = Math.round(150 * (window.innerHeight / baseHeight));
+    margin.left = Math.round(50 * (window.innerWidth / baseWidth));
+    
+    width = baseWidth * newScaleFactor - margin.left - margin.right;
+    height = baseHeight * newScaleFactor - margin.top - margin.bottom;
+    
+    // Redraw the current section
+    const currentIndex = Math.floor(window.scrollY / window.innerHeight);
+    const currentSection = sections[currentIndex];
+    
+    if (state.visualizations[currentSection]) {
+        const container = document.querySelector('.visualization-container');
+        container.innerHTML = '';
+        state.visualizations[currentSection] = initSection(d3.select(container), currentSection);
+        
+        if (["breakfast", "lunch", "dinner"].includes(currentSection)) {
+            animateGlucosePlot(currentSection, state.mealSelections[currentSection] || "low-carb");
+        }
+    }
+});
 
 
