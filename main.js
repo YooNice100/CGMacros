@@ -3,12 +3,12 @@ const width = window.innerWidth - margin.left - margin.right;
 const height = window.innerHeight - margin.top - margin.bottom;
 
 const backgroundColors = { 
-    intro: "white",         // White for all intro sections
-    "meet-ben": "white",    // White
-    "meet-tim": "white",    // White
-    "meet-joey": "white",   // White
-    compare: "white",       // White
-    "gut-health": "white",  // White
+    intro: "#FFFACD",         // Light yellow for all intro sections
+    "meet-ben": "#FFFACD",    // Light yellow
+    "meet-tim": "#FFFACD",    // Light yellow
+    "meet-joey": "#FFFACD",   // Light yellow
+    compare: "#FFFACD",       // Light yellow
+    "gut-health": "#FFFACD",  // Light yellow
     breakfast: "#FFE4B5",     // Moccasin - warm morning color
     lunch: "#87CEEB",         // Sky Blue - bright midday color
     dinner: "#B19CD9"         // Medium purple - evening color
@@ -441,17 +441,10 @@ scroller.setup({
     d3.selectAll(".step").classed("active", false);
     d3.select(element).classed("active", true);
     
-    // Reset all styling
-    document.body.classList.remove('meal-section');
-    document.body.style.removeProperty('--section-color');
-    document.body.style.backgroundColor = 'white';
-    
-    // Only apply colors for meal sections and only after index 6
-    if (index >= 6 && ["breakfast", "lunch", "dinner"].includes(currentSection)) {
-        document.body.classList.add('meal-section');
-        document.body.style.setProperty('--section-color', backgroundColors[currentSection]);
-    }
-    
+    // Apply background color for all sections
+    document.body.style.backgroundColor = backgroundColors[currentSection];
+    document.body.style.transition = 'background-color 1s ease';
+
     if (!state.visualizations[currentSection]) {
         const container = element.querySelector('.visualization-container');
         state.visualizations[currentSection] = initSection(d3.select(container), currentSection);
@@ -631,16 +624,11 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
     });
 }
 
-// Add CSS for character description and smooth transitions
+// Update the style element
 const style = document.createElement('style');
 style.textContent = `
     body {
-        background-color: white !important;
-        transition: none !important;
-    }
-
-    body.meal-section {
-        background-color: var(--section-color) !important;
+        transition: background-color 1s ease;
     }
 
     .character-description {
