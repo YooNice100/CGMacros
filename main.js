@@ -770,26 +770,29 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
     };
     const mappedMealPhase = mealMapping[mealPhase];
 
-    let filteredData = state.glucoseData.filter(d => {
-        // Special case for average gut health, pre-diabetic, lunch, low carb
-        if (state.gutHealth === "average-gut-health" && 
-            d.diabetesStatus === "Pre-Diabetes" && 
-            mappedMealPhase === "Lunch Phase" && 
-            mappedCarb === "Low") {
-            return d.subject === "41" && d.mealPhase === mappedMealPhase && d.carbCategory === mappedCarb;
-        }
-        
-        // Default filtering
-        return d.mealPhase === mappedMealPhase && d.carbCategory === mappedCarb;
-    });
-
-    let groupedData = d3.group(filteredData, d => d.diabetesStatus);
-
-    ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"].forEach((status, i) => {
+    ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"].forEach((diabetesStatus, i) => {
         const plot = plots[i];
         if (!plot) return;
 
-        const dataForStatus = groupedData.get(status) || [];
+        // Filter data for this specific diabetes status
+        let dataForStatus = state.glucoseData.filter(d => {
+            // Special case for average gut health, pre-diabetic, lunch, low carb
+            if (state.gutHealth === "average-gut-health" && 
+                diabetesStatus === "Pre-Diabetes" && 
+                mappedMealPhase === "Lunch Phase" && 
+                mappedCarb === "Low") {
+                return d.subject === "41" && 
+                       d.mealPhase === mappedMealPhase && 
+                       d.carbCategory === mappedCarb &&
+                       d.diabetesStatus === diabetesStatus;
+            }
+            
+            // Default filtering - now including diabetesStatus
+            return d.mealPhase === mappedMealPhase && 
+                   d.carbCategory === mappedCarb &&
+                   d.diabetesStatus === diabetesStatus;
+        });
+
         const sortedData = dataForStatus.sort((a, b) => a.timestamp - b.timestamp);
 
         if (sortedData.length > 0) {
