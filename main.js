@@ -136,6 +136,14 @@ function createGlucosePlot(container, x, y, width, height, type) {
     const group = container.append("g")
         .attr("transform", `translate(${x},${y})`);
     
+    // Create tooltip div if it doesn't exist
+    let tooltip = d3.select("body").select(".tooltip");
+    if (tooltip.empty()) {
+        tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+    }
+    
     const clipPath = group.append("defs")
         .append("clipPath")
         .attr("id", `clip-${type.replace(/\s+/g, '-').toLowerCase()}`)
@@ -191,6 +199,61 @@ function createGlucosePlot(container, x, y, width, height, type) {
         .attr("fill", "none")
         .attr("stroke", type === "No Diabetes" ? "green" : type === "Pre-Diabetes" ? "orange" : "red")
         .attr("stroke-width", 2);
+
+    // Add invisible overlay for better hover detection
+    const overlay = plotArea.append("rect")
+        .attr("class", "overlay")
+        .attr("width", width)
+        .attr("height", height)
+        .style("opacity", 0);
+
+    // Add circle that will move along the line
+    const focus = group.append("g")
+        .attr("class", "focus")
+        .style("display", "none");
+
+    focus.append("circle")
+        .attr("r", 4.5)
+        .attr("fill", type === "No Diabetes" ? "green" : type === "Pre-Diabetes" ? "orange" : "red")
+        .attr("stroke", "white")
+        .attr("stroke-width", 2);
+
+    function mousemove(event) {
+        const bisect = d3.bisector(d => d.timestamp).left;
+        const mouseX = d3.pointer(event)[0];
+        const x0 = xScale.invert(mouseX);
+        const data = path.datum();
+        if (!data) return;
+        
+        const i = bisect(data, x0, 1);
+        const d0 = data[i - 1];
+        const d1 = data[i];
+        if (!d0 || !d1) return;
+        
+        const d = x0 - d0.timestamp > d1.timestamp - x0 ? d1 : d0;
+        
+        focus.attr("transform", `translate(${xScale(d.timestamp)},${yScale(d.glucose)})`);
+        focus.style("display", null);
+        
+        const timeAfterMeal = d3.timeHour.count(data[0].timestamp, d.timestamp);
+        tooltip.html(`
+            <strong>${type}</strong><br/>
+            Time: ${timeAfterMeal}hr<br/>
+            Glucose: ${Math.round(d.glucose)} mg/dL
+        `)
+        .style("left", (event.pageX + 10) + "px")
+        .style("top", (event.pageY - 10) + "px")
+        .style("opacity", 1);
+    }
+
+    function mouseout() {
+        focus.style("display", "none");
+        tooltip.style("opacity", 0);
+    }
+
+    overlay
+        .on("mousemove", mousemove)
+        .on("mouseout", mouseout);
     
     return { path, xScale, yScale, line, group, xAxis, yAxis };
 }
@@ -642,6 +705,21 @@ style.textContent = `
     
     .step.active .character-description {
         opacity: 1;
+    }
+
+    .tooltip {
+        position: absolute;
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        pointer-events: none;
+        font-size: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .focus circle {
+        filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
     }
 `;
 document.head.appendChild(style);
