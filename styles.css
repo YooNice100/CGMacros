@@ -104,17 +104,6 @@ body {
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
 }
 
-.step:nth-child(3) {
-    background-color: #FFDAB9;
-}
-
-.step:nth-child(4) {
-    background-color: #FFFACD;
-}
-
-.step:nth-child(5) {
-    background-color: #D8BFD8;
-} 
 
 
 #stick-figures {

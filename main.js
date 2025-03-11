@@ -2,7 +2,17 @@ const margin = { top: 80, right: 50, bottom: 150, left: 50 };
 const width = window.innerWidth - margin.left - margin.right;
 const height = window.innerHeight - margin.top - margin.bottom;
 
-const backgroundColors = { breakfast: "#FFDAB9", lunch: "#FFFACD", dinner: "#D8BFD8" };
+const backgroundColors = { 
+    intro: "white",         // White for all intro sections
+    "meet-ben": "white",    // White
+    "meet-tim": "white",    // White
+    "meet-joey": "white",   // White
+    compare: "white",       // White
+    "gut-health": "white",  // White
+    breakfast: "#FFE4B5",     // Moccasin - warm morning color
+    lunch: "#87CEEB",         // Sky Blue - bright midday color
+    dinner: "#B19CD9"         // Medium purple - evening color
+};
 
 function updateVisualization() {
     if (!state.gutHealth || !state.glucoseData || state.glucoseData.length === 0) return;
@@ -431,15 +441,15 @@ scroller.setup({
     d3.selectAll(".step").classed("active", false);
     d3.select(element).classed("active", true);
     
-    // Always set background to white first
-    document.body.style.backgroundColor = "white";
+    // Reset all styling
+    document.body.classList.remove('meal-section');
+    document.body.style.removeProperty('--section-color');
+    document.body.style.backgroundColor = 'white';
     
-    // Only apply colors for meal sections
-    if (["breakfast", "lunch", "dinner"].includes(currentSection)) {
-        d3.select("body")
-            .transition()
-            .duration(1000)
-            .style("background-color", backgroundColors[currentSection]);
+    // Only apply colors for meal sections and only after index 6
+    if (index >= 6 && ["breakfast", "lunch", "dinner"].includes(currentSection)) {
+        document.body.classList.add('meal-section');
+        document.body.style.setProperty('--section-color', backgroundColors[currentSection]);
     }
     
     if (!state.visualizations[currentSection]) {
@@ -533,14 +543,6 @@ scroller.setup({
     if (currentSection === "gut-health") {
         buttonContainer.classed("active", false);
     }
-    
-    // Clear background color when leaving meal sections
-    if (["breakfast", "lunch", "dinner"].includes(currentSection)) {
-        d3.select("body")
-            .transition()
-            .duration(1000)
-            .style("background-color", "white");
-    }
 });
 
 function animateGlucosePlot(mealPhase, selectedCarb) {
@@ -629,9 +631,18 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
     });
 }
 
-// Add CSS for character description
+// Add CSS for character description and smooth transitions
 const style = document.createElement('style');
 style.textContent = `
+    body {
+        background-color: white !important;
+        transition: none !important;
+    }
+
+    body.meal-section {
+        background-color: var(--section-color) !important;
+    }
+
     .character-description {
         text-align: center;
         font-size: 24px;

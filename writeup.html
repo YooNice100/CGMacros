@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writeup</title>
+</head>
+<body>
+    <h1>
+        What have you done so far?
+    </h1>
+    <p>
+        So far, we have designed the basic structure of our interactive data visualization project using HTML, CSS, and JavaScript. We used D3.js for our line plots that show glucose level after each meal. Our web page consists of multiple steps that guide users through different phases of meal consumption. Our ultimate goal is to make the user feel like they’re being walked through a day in the life of the patients and to see how different types of gut health and meals affect glucose. First, we created buttons for the users to choose whether they want to see the glucose levels of patients with bad, average, or good gut health since from our EDA, we saw that bacteria and gut health can affect glucose levels. Then we made the page layout so that as you scroll, you will get the first meal of the day (breakfast). On this page, there will be 3 buttons so the user can filter between glucose levels after a low carb, moderate carb, or high carb meal. We did this for lunch and dinner phases as well. To start on making it feel more like the user is going through the day, we made the background of the page transition colors as you scroll so breakfast and lunch have daytime colors while dinner has a nighttime color. We also labeled the graphs by 3 different groups of patients, ‘No Diabetes’, ‘Pre-Diabetes’, and ‘Type 2 Diabetes’. On the data side, we have written JavaScript functions to load and process gut health data from CSV files to correspond with our graphs and different selections. We also implemented filtering methods to clean and structure the data. We also extracted key features such as glucose levels, meal phases, and diabetes status. 
+    </p>
+    <h1>
+        What will be the most challenging part of your project to design and why?
+    </h1>
+    <p>
+        The most challenging part of our project design will be making the website function properly and bug free as you scroll through the page. For our final deliverable, we want the line in the line plot to animate and progressively appear as you scroll through the page. This will make it easier to compare the glucose levels at specific points in time. This will be challenging because right now our graph is static unless you press the filter buttons, so we will have to animate the line plot loading in as you scroll down. This is tricky to make smooth and bug free because we have to coordinate the plots and sections. Another design challenge that we anticipate will be making the annotations sync with the choices that the user makes. Since the user is filtering the data along the way, there are multiple possibilities for what the graphs can turn out as for each stage so we need to make sure that the annotations that we put correspond to the right graph. 
+    </p>
+</body>
+</html>
