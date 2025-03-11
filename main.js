@@ -343,7 +343,9 @@ function initSection(container, type) {
                 .attr("y", height / 2 + 90)
                 .attr("text-anchor", "middle")
                 .style("font-size", "14px")
-                .text(type === "Healthy" ? "No Diabetes" : type === "Pre-Diabetic" ? "Pre-Diabetes" : "Type 2 Diabetes");
+                .text(type === "Healthy" ? "Ben - No Diabetes" : 
+                     type === "Pre-Diabetic" ? "Tim - Pre-Diabetes" : 
+                     "Joey - Type 2 Diabetes");
         });
 
         return { figures };
