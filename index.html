@@ -25,7 +25,7 @@
     </div>
     <div class="step">
         <div class="step-title">Meet Joey</div>
-        <div class="character-description">This is Joey. He is diabetic.</div>
+        <div class="character-description">This is Joey. He has type 2 diabetes.</div>
         <div class="visualization-container"></div>
     </div>
     <div class="step">
@@ -38,16 +38,235 @@
         </div>
     </div>
     <div class="step">
-        <!-- <div class="step-title">Breakfast Time</div> -->
         <div class="visualization-container"></div>
     </div>
-    <div class="step">
-        <!-- <div class="step-title">Lunch Time</div> -->
-        <div class="visualization-container"></div>
+    <div class="step annotation-step" id="breakfast-analysis">
+        <div class="step-title">Breakfast Analysis</div>
+        <div class="annotation-content">
+            <!-- Good Gut Health -->
+            <div class="good-gut-health low-carb-content" style="display: none;">
+                <p>Let's analyze how a low-carb breakfast affects glucose with good gut health:</p>
+                <ul>
+                    <li>Ben and Tim show excellent glucose stability with minimal spikes</li>
+                    <li>Joey's glucose rises moderately but returns to baseline quickly</li>
+                    <li>Good gut health helps optimize nutrient absorption and glucose control</li>
+                </ul>
+            </div>
+            <div class="good-gut-health medium-carb-content" style="display: none;">
+                <p>Impact of a moderate-carb breakfast with good gut health:</p>
+                <ul>
+                    <li>Ben maintains steady glucose levels with minimal elevation</li>
+                    <li>Tim shows a controlled rise and efficient recovery</li>
+                    <li>Joey's response is better managed due to healthy gut function</li>
+                </ul>
+            </div>
+            
+            <!-- Average Gut Health -->
+            <div class="average-gut-health low-carb-content" style="display: none;">
+                <p>Low-carb breakfast response with average gut health:</p>
+                <ul>
+                    <li>Ben and Tim maintain relatively stable glucose levels</li>
+                    <li>Joey shows moderate glucose elevation with slower recovery</li>
+                    <li>Average gut function leads to moderate glucose control</li>
+                </ul>
+            </div>
+            <div class="average-gut-health medium-carb-content" style="display: none;">
+                <p>Moderate-carb breakfast effects with average gut health:</p>
+                <ul>
+                    <li>Ben experiences slightly higher glucose variation</li>
+                    <li>Tim's glucose takes longer to stabilize</li>
+                    <li>Joey needs more time for glucose normalization</li>
+                </ul>
+            </div>
+            
+            <!-- Bad Gut Health -->
+            <div class="bad-gut-health low-carb-content" style="display: none;">
+                <p>Low-carb breakfast impact with compromised gut health:</p>
+                <ul>
+                    <li>Even Ben shows some glucose variability</li>
+                    <li>Tim's glucose control is noticeably affected</li>
+                    <li>Joey experiences prolonged elevation despite low carbs</li>
+                </ul>
+            </div>
+            <div class="bad-gut-health medium-carb-content" style="display: none;">
+                <p>Moderate-carb breakfast results with poor gut health:</p>
+                <ul>
+                    <li>All patients show more pronounced glucose responses</li>
+                    <li>Recovery times are significantly extended</li>
+                    <li>Impaired gut health affects overall glucose management</li>
+                </ul>
+            </div>
+        </div>
     </div>
     <div class="step">
-        <!-- <div class="step-title">Dinner Time</div> -->
         <div class="visualization-container"></div>
+    </div>
+    <div class="step annotation-step" id="lunch-analysis">
+        <div class="step-title">Lunch Analysis</div>
+        <div class="annotation-content">
+            <!-- Good Gut Health -->
+            <div class="good-gut-health low-carb-content" style="display: none;">
+                <p>Low-carb lunch effects with good gut health:</p>
+                <ul>
+                    <li>All patients maintain excellent glucose stability</li>
+                    <li>Quick recovery times across the board</li>
+                    <li>Healthy gut function supports optimal nutrient processing</li>
+                </ul>
+            </div>
+            <div class="good-gut-health medium-carb-content" style="display: none;">
+                <p>Moderate-carb lunch with good gut health:</p>
+                <ul>
+                    <li>Ben shows minimal glucose variation</li>
+                    <li>Tim maintains good control with brief elevation</li>
+                    <li>Joey's response is well-managed</li>
+                </ul>
+            </div>
+            <div class="good-gut-health high-carb-content" style="display: none;">
+                <p>High-carb lunch impact with good gut health:</p>
+                <ul>
+                    <li>Ben shows moderate but controlled elevation</li>
+                    <li>Tim experiences expected glucose rise with good recovery</li>
+                    <li>Joey's response is better than typical</li>
+                </ul>
+            </div>
+            
+            <!-- Average Gut Health -->
+            <div class="average-gut-health low-carb-content" style="display: none;">
+                <p>Low-carb lunch with average gut health:</p>
+                <ul>
+                    <li>Stable glucose levels with slight variations</li>
+                    <li>Recovery times are moderately extended</li>
+                    <li>Adequate glucose control maintained</li>
+                </ul>
+            </div>
+            <div class="average-gut-health medium-carb-content" style="display: none;">
+                <p>Moderate-carb lunch effects with average gut health:</p>
+                <ul>
+                    <li>More noticeable glucose fluctuations</li>
+                    <li>Extended stabilization period needed</li>
+                    <li>Typical afternoon energy variations observed</li>
+                </ul>
+            </div>
+            <div class="average-gut-health high-carb-content" style="display: none;">
+                <p>High-carb lunch impact with average gut health:</p>
+                <ul>
+                    <li>Significant glucose elevations noted</li>
+                    <li>Recovery times notably extended</li>
+                    <li>Afternoon productivity may be affected</li>
+                </ul>
+            </div>
+            
+            <!-- Bad Gut Health -->
+            <div class="bad-gut-health low-carb-content" style="display: none;">
+                <p>Low-carb lunch with poor gut health:</p>
+                <ul>
+                    <li>Glucose stability is compromised</li>
+                    <li>Recovery times are significantly extended</li>
+                    <li>Even low-carb meals show notable impact</li>
+                </ul>
+            </div>
+            <div class="bad-gut-health medium-carb-content" style="display: none;">
+                <p>Moderate-carb lunch effects with poor gut health:</p>
+                <ul>
+                    <li>All patients show pronounced glucose spikes</li>
+                    <li>Extended recovery periods needed</li>
+                    <li>Afternoon energy levels significantly affected</li>
+                </ul>
+            </div>
+            <div class="bad-gut-health high-carb-content" style="display: none;">
+                <p>High-carb lunch impact with poor gut health:</p>
+                <ul>
+                    <li>Severe glucose elevations in all patients</li>
+                    <li>Very long recovery times observed</li>
+                    <li>Significant impact on afternoon well-being</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="step">
+        <div class="visualization-container"></div>
+    </div>
+    <div class="step annotation-step" id="dinner-analysis">
+        <div class="step-title">Dinner Analysis</div>
+        <div class="annotation-content">
+            <!-- Good Gut Health -->
+            <div class="good-gut-health low-carb-content" style="display: none;">
+                <p>Evening response to low-carb dinner with good gut health:</p>
+                <ul>
+                    <li>Excellent pre-bedtime glucose control</li>
+                    <li>Minimal overnight glucose fluctuations</li>
+                    <li>Optimal conditions for quality sleep</li>
+                </ul>
+            </div>
+            <div class="good-gut-health medium-carb-content" style="display: none;">
+                <p>Moderate-carb dinner with good gut health:</p>
+                <ul>
+                    <li>Well-managed evening glucose responses</li>
+                    <li>Good stabilization before bedtime</li>
+                    <li>Normal overnight glucose patterns</li>
+                </ul>
+            </div>
+            <div class="good-gut-health high-carb-content" style="display: none;">
+                <p>High-carb dinner impact with good gut health:</p>
+                <ul>
+                    <li>Higher but controlled glucose elevations</li>
+                    <li>Recovery before sleep is manageable</li>
+                    <li>Minimal impact on overnight glucose</li>
+                </ul>
+            </div>
+            
+            <!-- Average Gut Health -->
+            <div class="average-gut-health low-carb-content" style="display: none;">
+                <p>Low-carb dinner with average gut health:</p>
+                <ul>
+                    <li>Generally stable evening glucose levels</li>
+                    <li>Some overnight variations possible</li>
+                    <li>Moderate sleep quality expected</li>
+                </ul>
+            </div>
+            <div class="average-gut-health medium-carb-content" style="display: none;">
+                <p>Moderate-carb dinner effects with average gut health:</p>
+                <ul>
+                    <li>More pronounced evening glucose changes</li>
+                    <li>Longer stabilization before bed</li>
+                    <li>Some impact on sleep possible</li>
+                </ul>
+            </div>
+            <div class="average-gut-health high-carb-content" style="display: none;">
+                <p>High-carb dinner impact with average gut health:</p>
+                <ul>
+                    <li>Significant evening glucose elevations</li>
+                    <li>Extended recovery affecting bedtime</li>
+                    <li>Sleep quality may be compromised</li>
+                </ul>
+            </div>
+            
+            <!-- Bad Gut Health -->
+            <div class="bad-gut-health low-carb-content" style="display: none;">
+                <p>Low-carb dinner with poor gut health:</p>
+                <ul>
+                    <li>Evening glucose control is challenging</li>
+                    <li>Overnight fluctuations more likely</li>
+                    <li>Sleep quality may be affected</li>
+                </ul>
+            </div>
+            <div class="bad-gut-health medium-carb-content" style="display: none;">
+                <p>Moderate-carb dinner effects with poor gut health:</p>
+                <ul>
+                    <li>Difficult evening glucose management</li>
+                    <li>Prolonged elevation before bedtime</li>
+                    <li>Sleep disruption likely</li>
+                </ul>
+            </div>
+            <div class="bad-gut-health high-carb-content" style="display: none;">
+                <p>High-carb dinner impact with poor gut health:</p>
+                <ul>
+                    <li>Severe evening glucose disruption</li>
+                    <li>Very long recovery times</li>
+                    <li>Significant sleep quality impact</li>
+                </ul>
+            </div>
+        </div>
     </div>
     <script src="main.js"></script>
 </body>
