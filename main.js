@@ -23,7 +23,8 @@ const sections = [
     "lunch",
     "lunch-analysis",
     "dinner",
-    "dinner-analysis"
+    "dinner-analysis",
+    "reset"
 ];
 
 const backgroundColors = { 
@@ -38,7 +39,8 @@ const backgroundColors = {
     lunch: "#87CEEB",         // Sky Blue - bright midday color
     "lunch-analysis": "#87CEEB", // Same as lunch
     dinner: "#B19CD9",        // Medium purple - evening color
-    "dinner-analysis": "#B19CD9"  // Same as dinner
+    "dinner-analysis": "#B19CD9",  // Same as dinner
+    reset: "#FFFACD"          // Light yellow for reset page
 };
 
 function updateVisualization() {
@@ -538,6 +540,66 @@ function initSection(container, type) {
         return { figures };
     }
     
+    if (type === "reset") {
+        // Add title
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", height / 3)
+            .attr("text-anchor", "middle")
+            .style("font-size", "32px")
+            .style("font-weight", "bold")
+            .text("Want to try different choices?");
+
+        // Add reset button
+        const resetButton = svg.append("g")
+            .attr("class", "reset-button")
+            .style("cursor", "pointer")
+            .on("click", function() {
+                // Store the target section in localStorage
+                localStorage.setItem('scrollTarget', 'gut-health');
+                // Refresh the page
+                window.location.reload();
+            });
+
+        // Button background
+        resetButton.append("rect")
+            .attr("x", width / 2 - 100)
+            .attr("y", height / 2 - 25)
+            .attr("width", 200)
+            .attr("height", 50)
+            .attr("rx", 25)
+            .attr("ry", 25)
+            .attr("fill", "#4CAF50")
+            .attr("stroke", "#388E3C")
+            .attr("stroke-width", 2);
+
+        // Button text
+        resetButton.append("text")
+            .attr("x", width / 2)
+            .attr("y", height / 2 + 8)
+            .attr("text-anchor", "middle")
+            .attr("fill", "white")
+            .style("font-size", "20px")
+            .text("Click to Reset");
+
+        // Add hover effect
+        resetButton
+            .on("mouseover", function() {
+                resetButton.select("rect")
+                    .transition()
+                    .duration(200)
+                    .attr("fill", "#45a049");
+            })
+            .on("mouseout", function() {
+                resetButton.select("rect")
+                    .transition()
+                    .duration(200)
+                    .attr("fill", "#4CAF50");
+            });
+
+        return { figures: null };
+    }
+    
     if (["breakfast", "lunch", "dinner"].includes(type)) {
         // Create tooltip div if it doesn't exist
         let mealTooltip = d3.select("body").select(".meal-tooltip");
@@ -718,7 +780,7 @@ scroller.setup({
             }
         }
         
-        // Immediately show the button container
+        // Show button container for meal sections
         buttonContainer.style("opacity", "1")
             .style("visibility", "visible")
             .classed("active", true);
@@ -727,7 +789,6 @@ scroller.setup({
             ["Low Carb", "Medium Carb"] : 
             ["Low Carb", "Medium Carb", "High Carb"];
             
-        // Immediately create and show buttons
         createButtons(buttonContainer, buttonOptions, (value) => {
             buttonContainer.selectAll(".button")
                 .classed("active", false);
@@ -749,6 +810,13 @@ scroller.setup({
             animateGlucosePlot(currentSection, state.mealSelections[currentSection]);
         }
     } else {
+        // Hide button container only for sections that don't need buttons
+        if (!["gut-health", "breakfast", "lunch", "dinner"].includes(currentSection)) {
+            buttonContainer.style("opacity", "0")
+                .style("visibility", "hidden")
+                .classed("active", false);
+        }
+            
         const mealSections = ["breakfast", "lunch", "dinner"];
         mealSections.forEach(section => {
             const visualization = state.visualizations[section];
@@ -973,6 +1041,24 @@ window.addEventListener('resize', () => {
         
         if (["breakfast", "lunch", "dinner"].includes(currentSection)) {
             animateGlucosePlot(currentSection, state.mealSelections[currentSection] || "low-carb");
+        }
+    }
+});
+
+// Check if there's a scroll target when the page loads
+window.addEventListener('load', function() {
+    const scrollTarget = localStorage.getItem('scrollTarget');
+    if (scrollTarget) {
+        // Clear the stored target
+        localStorage.removeItem('scrollTarget');
+        // Calculate the target scroll position
+        const targetIndex = sections.indexOf(scrollTarget);
+        if (targetIndex !== -1) {
+            // Scroll to the target section
+            window.scrollTo({
+                top: window.innerHeight * targetIndex,
+                behavior: 'smooth'
+            });
         }
     }
 });
