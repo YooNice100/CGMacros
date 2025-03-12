@@ -11,6 +11,21 @@ const scaleFactor = Math.min(
 let width = window.innerWidth - margin.left - margin.right;
 const height = window.innerHeight - margin.top - margin.bottom;
 
+const sections = [
+    "intro", 
+    "meet-ben", 
+    "meet-tim", 
+    "meet-joey", 
+    "compare", 
+    "gut-health", 
+    "breakfast",
+    "breakfast-analysis",
+    "lunch",
+    "lunch-analysis",
+    "dinner",
+    "dinner-analysis"
+];
+
 const backgroundColors = { 
     intro: "#FFFACD",         // Light yellow for all intro sections
     "meet-ben": "#FFFACD",    // Light yellow
@@ -19,8 +34,11 @@ const backgroundColors = {
     compare: "#FFFACD",       // Light yellow
     "gut-health": "#FFFACD",  // Light yellow
     breakfast: "#FFE4B5",     // Moccasin - warm morning color
+    "breakfast-analysis": "#FFE4B5", // Same as breakfast
     lunch: "#87CEEB",         // Sky Blue - bright midday color
-    dinner: "#B19CD9"         // Medium purple - evening color
+    "lunch-analysis": "#87CEEB", // Same as lunch
+    dinner: "#B19CD9",        // Medium purple - evening color
+    "dinner-analysis": "#B19CD9"  // Same as dinner
 };
 
 function updateVisualization() {
@@ -622,8 +640,6 @@ let state = {
 
 const buttonContainer = createButtonContainer();
 
-const sections = ["intro", "meet-ben", "meet-tim", "meet-joey", "compare", "gut-health", "breakfast", "lunch", "dinner"];
-
 function handleScroll(event) {
     const currentIndex = Math.floor(window.scrollY / window.innerHeight);
     const currentSection = sections[currentIndex];
@@ -765,6 +781,22 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
     }
 
     state.mealSelections[mealPhase] = selectedCarb;
+
+    // Update annotation content based on both gut health and carb level
+    const analysisSection = document.getElementById(`${mealPhase}-analysis`);
+    if (analysisSection) {
+        // Hide all content first
+        analysisSection.querySelectorAll('.annotation-content > div').forEach(div => {
+            div.style.display = 'none';
+        });
+        
+        // Show content matching both gut health and carb level
+        const gutHealthClass = state.gutHealth.replace(/-/g, '-');
+        const contentToShow = analysisSection.querySelector(`.${gutHealthClass}.${selectedCarb}-content`);
+        if (contentToShow) {
+            contentToShow.style.display = 'block';
+        }
+    }
 
     const visualization = state.visualizations[mealPhase];
     if (!visualization) return;

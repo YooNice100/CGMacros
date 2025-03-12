@@ -173,3 +173,42 @@ h1, h2 {
 .show {
     opacity: 1;
 }
+
+.annotation-step {
+    margin: 20px auto;
+    max-width: 800px;
+    padding: 30px;
+}
+
+.annotation-step .step-title {
+    color: #333;
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.annotation-content {
+    color: #444;
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+.annotation-content p {
+    margin-bottom: 15px;
+}
+
+.annotation-content ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.annotation-content li {
+    border-left: 4px solid #4CAF50;
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+.annotation-content li:hover {
+    transform: translateX(5px);
+}
