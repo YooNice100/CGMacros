@@ -23,7 +23,7 @@ const sections = [
     "lunch-analysis",
     "dinner",
     "dinner-analysis",
-    "reset"
+    "reset-section"
 ];
 
 const backgroundColors = { 
@@ -39,7 +39,7 @@ const backgroundColors = {
     "lunch-analysis": "#87CEEB", // Same as lunch
     dinner: "#B19CD9",        // Medium purple - evening color
     "dinner-analysis": "#B19CD9",  // Same as dinner
-    reset: "#FFFACD"          // Light yellow for reset page
+    "reset-section": "#FFFACD"  // Light yellow for reset section
 };
 
 function updateVisualization() {
@@ -539,7 +539,7 @@ function initSection(container, type) {
         return { figures };
     }
     
-    if (type === "reset") {
+    if (type === "reset-section") {
         // Add title
         svg.append("text")
             .attr("x", width / 2)
@@ -553,12 +553,7 @@ function initSection(container, type) {
         const resetButton = svg.append("g")
             .attr("class", "reset-button")
             .style("cursor", "pointer")
-            .on("click", function() {
-                // Store the target section in localStorage
-                localStorage.setItem('scrollTarget', 'gut-health');
-                // Refresh the page
-                window.location.reload();
-            });
+            .on("click", handleReset);
 
         // Button background
         resetButton.append("rect")
@@ -596,7 +591,7 @@ function initSection(container, type) {
                     .attr("fill", "#4CAF50");
             });
 
-        return { figures: null };
+        return { figures: [resetButton] };
     }
     
     if (["breakfast", "lunch", "dinner"].includes(type)) {
@@ -1061,5 +1056,54 @@ window.addEventListener('load', function() {
         }
     }
 });
+
+function handleReset() {
+    // Store the current gut health selection
+    const previousGutHealth = state.gutHealth;
+    
+    // Store target section in localStorage
+    localStorage.setItem('scrollTarget', 'gut-health');
+    
+    // Reset the state
+    state = {
+        glucoseData: [],
+        gutHealth: null,
+        mealSelections: {
+            breakfast: null,
+            lunch: null,
+            dinner: null
+        },
+        visualizations: {
+            intro: null,
+            gutHealth: null,
+            breakfast: null,
+            lunch: null,
+            dinner: null
+        }
+    };
+    
+    // Clear all active states
+    d3.selectAll(".step").classed("active", false);
+    d3.selectAll(".button").classed("active", false);
+    
+    // Hide button container
+    buttonContainer.style("opacity", "0")
+        .style("visibility", "hidden")
+        .classed("active", false);
+
+    // Clear any existing tooltips
+    d3.selectAll('.tooltip, .meal-tooltip').remove();
+
+    // Scroll to top first
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+
+    // Reload the page after a short delay to ensure smooth scrolling
+    setTimeout(() => {
+        window.location.reload();
+    }, 500);
+}
 
 
