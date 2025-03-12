@@ -301,7 +301,10 @@ function createButtonContainer() {
         .style("left", "50%")
         .style("transform", "translateX(-50%)")
         .style("text-align", "center")
-        .style("z-index", "1000");
+        .style("z-index", "1000")
+        .style("transition", "opacity 0.3s ease-in-out")
+        .style("opacity", "0")
+        .style("visibility", "hidden");
 }
 
 function createButtons(container, options, callback) {
@@ -311,7 +314,8 @@ function createButtons(container, options, callback) {
             .attr("class", "button")
             .text(option)
             .attr("data-value", option.toLowerCase().replace(" ", "-"))
-            .style("transition-delay", `${i * 0.2}s`)
+            .style("opacity", "1")
+            .style("transform", "translateY(0)")
             .on("click", function() {
                 const value = d3.select(this).attr("data-value");
                 callback(value);
@@ -665,7 +669,9 @@ scroller.setup({
             });
         }
         if (!state.gutHealth) {
-            buttonContainer.classed("active", true);
+            buttonContainer.style("opacity", "1")
+                .style("visibility", "visible")
+                .classed("active", true);
             createButtons(buttonContainer, ["Good Gut Health", "Average Gut Health", "Bad Gut Health"], (value) => {
                 const gutHealthValue = value.toLowerCase().replace(" ", "-");
                 state.gutHealth = gutHealthValue;
@@ -696,11 +702,16 @@ scroller.setup({
             }
         }
         
-        buttonContainer.classed("active", true);
+        // Immediately show the button container
+        buttonContainer.style("opacity", "1")
+            .style("visibility", "visible")
+            .classed("active", true);
+            
         const buttonOptions = currentSection === "breakfast" ? 
             ["Low Carb", "Medium Carb"] : 
             ["Low Carb", "Medium Carb", "High Carb"];
             
+        // Immediately create and show buttons
         createButtons(buttonContainer, buttonOptions, (value) => {
             buttonContainer.selectAll(".button")
                 .classed("active", false);
@@ -710,15 +721,16 @@ scroller.setup({
             animateGlucosePlot(currentSection, value);
         });
         
+        // Set initial selection immediately
         if (!state.mealSelections[currentSection]) {
             state.mealSelections[currentSection] = "low-carb";
-            animateGlucosePlot(currentSection, "low-carb");
             buttonContainer.select(`[data-value="low-carb"]`)
                 .classed("active", true);
+            animateGlucosePlot(currentSection, "low-carb");
         } else {
-            animateGlucosePlot(currentSection, state.mealSelections[currentSection]);
             buttonContainer.select(`[data-value="${state.mealSelections[currentSection]}"]`)
                 .classed("active", true);
+            animateGlucosePlot(currentSection, state.mealSelections[currentSection]);
         }
     } else {
         const mealSections = ["breakfast", "lunch", "dinner"];
