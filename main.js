@@ -2,7 +2,6 @@ const baseWidth = 1920; // Base width for scaling
 const baseHeight = 1080; // Base height for scaling
 const margin = { top: 80, right: 50, bottom: 150, left: 50 };
 
-// Calculate the scale factor based on the current window size
 const scaleFactor = Math.min(
     window.innerWidth / baseWidth,
     window.innerHeight / baseHeight
