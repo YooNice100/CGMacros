@@ -153,8 +153,8 @@ body {
     background-color: #2196F3;
 }
 
-/* Default state for average-gut-health button to appear selected */
-.button-container.active .gut-health-button[data-value="average-gut-health"] {
+/* Make average-gut-health button dark by default */
+.gut-health-button[data-value="average-gut-health"] {
     background-color: #1565C0;
     transform: translateY(-2px);
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
