@@ -90,39 +90,46 @@ body {
 }
 
 .button-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     position: fixed;
-    bottom: 60px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
-    display: none;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-    white-space: nowrap;
+    transition: all 0.3s ease-in-out;
 }
 
 .button-container.active {
     display: flex;
-    justify-content: center;
-    align-items: center;
     opacity: 1;
 }
 
+.carb-buttons, .gut-health-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 8px 0;
+}
+
 .button {
-    margin: 0 15px;
-    padding: 20px 30px;
+    margin: 0 8px;
+    padding: 12px 20px;
     border: none;
     border-radius: 8px;
     background-color: #4CAF50;
     color: white;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: bold;
     opacity: 0;
     transform: translateY(20px);
     transition: all 0.3s ease-in-out;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     white-space: nowrap;
+    position: relative;
 }
 
 .button.active {
@@ -142,7 +149,26 @@ body {
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
 }
 
+.gut-health-button {
+    background-color: #2196F3;
+}
 
+/* Default state for average-gut-health button to appear selected */
+.button-container.active .gut-health-button[data-value="average-gut-health"] {
+    background-color: #1565C0;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+.gut-health-button.active {
+    background-color: #1565C0;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+.gut-health-button:hover {
+    background-color: #1976D2;
+}
 
 #stick-figures {
     display: flex;

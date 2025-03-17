@@ -16,14 +16,12 @@ const sections = [
     "meet-tim", 
     "meet-joey", 
     "compare", 
-    "gut-health", 
     "breakfast",
     "breakfast-analysis",
     "lunch",
     "lunch-analysis",
     "dinner",
-    "dinner-analysis",
-    "reset-section"
+    "dinner-analysis"
 ];
 
 const backgroundColors = { 
@@ -32,14 +30,12 @@ const backgroundColors = {
     "meet-tim": "#FFFACD",    // Light yellow
     "meet-joey": "#FFFACD",   // Light yellow
     compare: "#FFFACD",       // Light yellow
-    "gut-health": "#FFFACD",  // Light yellow
     breakfast: "#FFE4B5",     // Moccasin - warm morning color
     "breakfast-analysis": "#FFE4B5", // Same as breakfast
     lunch: "#87CEEB",         // Sky Blue - bright midday color
     "lunch-analysis": "#87CEEB", // Same as lunch
     dinner: "#B19CD9",        // Medium purple - evening color
-    "dinner-analysis": "#B19CD9",  // Same as dinner
-    "reset-section": "#FFFACD"  // Light yellow for reset section
+    "dinner-analysis": "#B19CD9"  // Same as dinner
 };
 
 function updateVisualization() {
@@ -72,12 +68,6 @@ function loadGutHealthData(gutHealthSelection) {
     
     d3.csv(fileName).then(data => {
         console.log('Raw data loaded, number of rows:', data.length);
-        console.log('First row of data:', data[0]);
-        console.log('Available columns:', Object.keys(data[0]));
-        
-        console.log('Unique Carb Categories:', [...new Set(data.map(d => d["Carb Category"]))]);
-        console.log('Unique Meal Phases:', [...new Set(data.map(d => d["Meal Phase"]))]);
-        console.log('Unique Diabetes Status:', [...new Set(data.map(d => d["Diabetes Status"]))]);
         
         const filteredData = data.filter(d => {
             const hasValidData = d["Carb Category"] && d["Meal Phase"] && d["Carb Category"] !== "" && d["Meal Phase"] !== "";
@@ -102,13 +92,14 @@ function loadGutHealthData(gutHealthSelection) {
         
         state.glucoseData = filteredData;
         state.gutHealth = gutHealthSelection;
-        console.log('State after loading:', {
-            gutHealth: state.gutHealth,
-            glucoseDataLength: state.glucoseData.length,
-            firstDataPoint: state.glucoseData[0]
-        });
         
-        updateVisualization();
+        // Find current section and update plots
+        const currentIndex = Math.floor(window.scrollY / window.innerHeight);
+        const currentSection = sections[currentIndex];
+        
+        if (["breakfast", "lunch", "dinner"].includes(currentSection)) {
+            animateGlucosePlot(currentSection, state.mealSelections[currentSection] || "low-carb");
+        }
     }).catch(error => {
         console.error("Error loading gut health data:", error);
         console.error("Error details:", error.message);
@@ -312,7 +303,7 @@ function createGlucosePlot(container, x, y, width, height, type) {
 }
 
 function createButtonContainer() {
-    return d3.select("body")
+    const container = d3.select("body")
         .append("div")
         .attr("class", "button-container")
         .style("position", "fixed")
@@ -324,19 +315,42 @@ function createButtonContainer() {
         .style("transition", "opacity 0.3s ease-in-out")
         .style("opacity", "0")
         .style("visibility", "hidden");
+
+    // Create sub-containers for carb and gut health buttons
+    container.append("div")
+        .attr("class", "carb-buttons")
+        .style("margin-bottom", "10px");
+
+    container.append("div")
+        .attr("class", "gut-health-buttons");
+
+    return container;
 }
 
-function createButtons(container, options, callback) {
-    container.selectAll("*").remove();
+function createButtons(container, options, callback, type = 'carb') {
+    const buttonContainer = container.select(type === 'carb' ? ".carb-buttons" : ".gut-health-buttons");
+    buttonContainer.selectAll("*").remove();
+    
+    if (type === 'gut-health') {
+        buttonContainer.append("span")
+            .text("Gut Health: ")
+            .style("color", "#333")
+            .style("margin-right", "10px")
+            .style("font-size", "16px")
+            .style("font-weight", "bold");
+    }
+    
     options.forEach((option, i) => {
-        container.append("button")
-            .attr("class", "button")
+        buttonContainer.append("button")
+            .attr("class", `button ${type}-button`)
             .text(option)
             .attr("data-value", option.toLowerCase().replace(" ", "-"))
             .style("opacity", "1")
             .style("transform", "translateY(0)")
             .on("click", function() {
                 const value = d3.select(this).attr("data-value");
+                buttonContainer.selectAll(`.${type}-button`).classed("active", false);
+                d3.select(this).classed("active", true);
                 callback(value);
             });
     });
@@ -679,7 +693,7 @@ function initSection(container, type) {
 
 let state = {
     glucoseData: [],
-    gutHealth: null,
+    gutHealth: "average-gut-health",
     mealSelections: {
         breakfast: null,
         lunch: null,
@@ -687,12 +701,14 @@ let state = {
     },
     visualizations: {
         intro: null,
-        gutHealth: null,
         breakfast: null,
         lunch: null,
         dinner: null
     }
 };
+
+// Load initial gut health data
+loadGutHealthData("average-gut-health");
 
 const buttonContainer = createButtonContainer();
 
@@ -733,31 +749,6 @@ scroller.setup({
         const container = element.querySelector('.visualization-container');
         state.visualizations[currentSection] = initSection(d3.select(container), currentSection);
     }
-    
-    if (currentSection === "gut-health") {
-        if (state.visualizations.gutHealth && state.visualizations.gutHealth.figures) {
-            state.visualizations.gutHealth.figures.forEach(figure => {
-                figure.style("opacity", 1);
-            });
-        }
-        if (!state.gutHealth) {
-            buttonContainer.style("opacity", "1")
-                .style("visibility", "visible")
-                .classed("active", true);
-            createButtons(buttonContainer, ["Good Gut Health", "Average Gut Health", "Bad Gut Health"], (value) => {
-                const gutHealthValue = value.toLowerCase().replace(" ", "-");
-                state.gutHealth = gutHealthValue;
-                loadGutHealthData(gutHealthValue);
-                buttonContainer.classed("active", false);
-            }); 
-        }
-    } else {
-        if (state.visualizations.gutHealth && state.visualizations.gutHealth.figures) {
-            state.visualizations.gutHealth.figures.forEach(figure => {
-                figure.style("opacity", 0);
-            });
-        }
-    }
 
     if (["breakfast", "lunch", "dinner"].includes(currentSection)) {
         const visualization = state.visualizations[currentSection];
@@ -783,33 +774,47 @@ scroller.setup({
             ["Low Carb", "Medium Carb"] : 
             ["Low Carb", "Medium Carb", "High Carb"];
             
+        // Create carb level buttons
         createButtons(buttonContainer, buttonOptions, (value) => {
-            buttonContainer.selectAll(".button")
-                .classed("active", false);
-            buttonContainer.select(`[data-value="${value}"]`)
-                .classed("active", true);
             state.mealSelections[currentSection] = value;
             animateGlucosePlot(currentSection, value);
-        });
+        }, 'carb');
         
-        // Set initial selection immediately
+        // Create gut health buttons
+        createButtons(buttonContainer, ["Good Gut Health", "Average Gut Health", "Bad Gut Health"], (value) => {
+            const gutHealthValue = value.toLowerCase().replace(" ", "-");
+            if (gutHealthValue !== state.gutHealth) {
+                state.gutHealth = gutHealthValue;
+                loadGutHealthData(gutHealthValue);
+            }
+        }, 'gut-health');
+        
+        // Set initial selections if not already set
+        if (!state.gutHealth) {
+            state.gutHealth = "average-gut-health";
+            buttonContainer.select('.gut-health-button[data-value="average-gut-health"]')
+                .classed("active", true);
+            loadGutHealthData("average-gut-health");
+        } else {
+            buttonContainer.select(`.gut-health-button[data-value="${state.gutHealth}"]`)
+                .classed("active", true);
+        }
+        
         if (!state.mealSelections[currentSection]) {
             state.mealSelections[currentSection] = "low-carb";
-            buttonContainer.select(`[data-value="low-carb"]`)
+            buttonContainer.select('.carb-button[data-value="low-carb"]')
                 .classed("active", true);
             animateGlucosePlot(currentSection, "low-carb");
         } else {
-            buttonContainer.select(`[data-value="${state.mealSelections[currentSection]}"]`)
+            buttonContainer.select(`.carb-button[data-value="${state.mealSelections[currentSection]}"]`)
                 .classed("active", true);
             animateGlucosePlot(currentSection, state.mealSelections[currentSection]);
         }
     } else {
-        // Hide button container only for sections that don't need buttons
-        if (!["gut-health", "breakfast", "lunch", "dinner"].includes(currentSection)) {
-            buttonContainer.style("opacity", "0")
-                .style("visibility", "hidden")
-                .classed("active", false);
-        }
+        // Hide button container for non-meal sections
+        buttonContainer.style("opacity", "0")
+            .style("visibility", "hidden")
+            .classed("active", false);
             
         const mealSections = ["breakfast", "lunch", "dinner"];
         mealSections.forEach(section => {
@@ -830,10 +835,6 @@ scroller.setup({
     }
 }).onStepExit(({ element, index }) => {
     const currentSection = sections[index];
-    
-    if (currentSection === "gut-health") {
-        buttonContainer.classed("active", false);
-    }
 });
 
 function animateGlucosePlot(mealPhase, selectedCarb) {
@@ -883,20 +884,8 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
         const plot = plots[i];
         if (!plot) return;
 
-        // Filter data for this specific diabetes status
+        // Filter data for this specific diabetes status, meal phase, and carb category
         let dataForStatus = state.glucoseData.filter(d => {
-            // Special case for average gut health, pre-diabetic, lunch, low carb
-            if (state.gutHealth === "average-gut-health" && 
-                diabetesStatus === "Pre-Diabetes" && 
-                mappedMealPhase === "Lunch Phase" && 
-                mappedCarb === "Low") {
-                return d.subject === "41" && 
-                       d.mealPhase === mappedMealPhase && 
-                       d.carbCategory === mappedCarb &&
-                       d.diabetesStatus === diabetesStatus;
-            }
-            
-            // Default filtering - now including diabetesStatus
             return d.mealPhase === mappedMealPhase && 
                    d.carbCategory === mappedCarb &&
                    d.diabetesStatus === diabetesStatus;
