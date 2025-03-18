@@ -22,7 +22,7 @@ const sections = [
     "breakfast-all",
     "lunch",
     "dinner",
-    "reset-section"
+    "final-takeaway"
 ];
 
 const backgroundColors = { 
@@ -38,7 +38,7 @@ const backgroundColors = {
     "breakfast-all": "#FFE4B5",     // Same as breakfast
     lunch: "#87CEEB",         // Sky Blue - bright midday color
     dinner: "#B19CD9",        // Medium purple - evening color
-    "reset-section": "#FFFACD"  // Light yellow for reset section
+    "final-takeaway": "#FFFACD"  // Light yellow for reset section
 };
 
 function updateVisualization() {
@@ -791,9 +791,9 @@ scroller.setup({
     debug: false
 }).onStepEnter(({ element, index, progress }) => {
     const currentSection = sections[index];
-    
+
     console.log('Entered step:', currentSection);
-    
+ 
     d3.selectAll(".step").classed("active", false);
     d3.select(element).classed("active", true);
     
@@ -889,8 +889,8 @@ scroller.setup({
             animateGlucosePlot(currentSection, value);
         }, 'carb');
         
-        createButtons(buttonContainer, ["Good Gut Health", "Average Gut Health", "Bad Gut Health"], (value) => {
-            const gutHealthValue = value.toLowerCase().replace(" ", "-");
+            createButtons(buttonContainer, ["Good Gut Health", "Average Gut Health", "Bad Gut Health"], (value) => {
+                const gutHealthValue = value.toLowerCase().replace(" ", "-");
             if (gutHealthValue !== state.gutHealth) {
                 state.gutHealth = gutHealthValue;
                 loadGutHealthData(gutHealthValue);
@@ -953,7 +953,7 @@ scroller.setup({
         // Show both carb and gut health buttons
         buttonContainer.style("opacity", "1")
             .style("visibility", "visible")
-            .classed("active", true);
+                .classed("active", true);
             
         createButtons(buttonContainer, ["Low Carb", "Medium Carb"], (value) => {
             state.mealSelections[currentSection === "breakfast-all" ? "breakfast" : currentSection] = value;
@@ -977,14 +977,14 @@ scroller.setup({
             state.gutHealth = "average-gut-health";
         }
         buttonContainer.select(`.gut-health-button[data-value="${state.gutHealth}"]`)
-            .classed("active", true);
+                .classed("active", true);
         
         const mealType = currentSection === "breakfast-all" ? "breakfast" : currentSection;
         if (!state.mealSelections[mealType]) {
             state.mealSelections[mealType] = "low-carb";
         }
         buttonContainer.select(`.carb-button[data-value="${state.mealSelections[mealType]}"]`)
-            .classed("active", true);
+                .classed("active", true);
         
         // Animate all plots with current selections
         animateGlucosePlot(currentSection, state.mealSelections[mealType] || "low-carb");
