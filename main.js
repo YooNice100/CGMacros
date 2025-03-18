@@ -1,5 +1,5 @@
-const baseWidth = 1920; // Base width for scaling
-const baseHeight = 1080; // Base height for scaling
+const baseWidth = 1920; 
+const baseHeight = 1080; 
 const margin = { top: 80, right: 50, bottom: 150, left: 50 };
 
 const scaleFactor = Math.min(
@@ -26,19 +26,19 @@ const sections = [
 ];
 
 const backgroundColors = { 
-    intro: "#FFFACD",         // Light yellow for all intro sections
-    "meet-ben": "#FFFACD",    // Light yellow
-    "meet-tim": "#FFFACD",    // Light yellow
-    "meet-joey": "#FFFACD",   // Light yellow
-    compare: "#FFFACD",       // Light yellow
-    "gut-health": "#FFFACD",  // Light yellow
-    "breakfast-ben": "#FFE4B5",     // Moccasin - warm morning color
-    "breakfast-tim": "#FFE4B5",     // Same as breakfast
-    "breakfast-joey": "#FFE4B5",    // Same as breakfast
-    "breakfast-all": "#FFE4B5",     // Same as breakfast
-    lunch: "#87CEEB",         // Sky Blue - bright midday color
-    dinner: "#B19CD9",        // Medium purple - evening color
-    "final-takeaway": "#FFFACD"  // Light yellow for reset section
+    intro: "#FFFACD",        
+    "meet-ben": "#FFFACD",    
+    "meet-tim": "#FFFACD",   
+    "meet-joey": "#FFFACD",   
+    compare: "#FFFACD",      
+    "gut-health": "#FFFACD", 
+    "breakfast-ben": "#FFE4B5",     
+    "breakfast-tim": "#FFE4B5",     
+    "breakfast-joey": "#FFE4B5",    
+    "breakfast-all": "#FFE4B5",    
+    lunch: "#87CEEB",        
+    dinner: "#B19CD9",        
+    "final-takeaway": "#FFFACD"  
 };
 
 function updateVisualization() {
@@ -157,8 +157,7 @@ function drawStickFigure(container, x, y, scale = 0.8) {
 function createGlucosePlot(container, x, y, width, height, type) {
     const group = container.append("g")
         .attr("transform", `translate(${x},${y})`);
-    
-    // Create tooltip div if it doesn't exist
+   
     let tooltip = d3.select("body").select(".tooltip");
     if (tooltip.empty()) {
         tooltip = d3.select("body").append("div")
@@ -222,14 +221,13 @@ function createGlucosePlot(container, x, y, width, height, type) {
         .attr("stroke", type === "No Diabetes" ? "green" : type === "Pre-Diabetes" ? "orange" : "red")
         .attr("stroke-width", 2);
 
-    // Add invisible overlay for better hover detection
     const overlay = plotArea.append("rect")
         .attr("class", "overlay")
         .attr("width", width)
         .attr("height", height)
         .style("opacity", 0);
 
-    // Add circle that will move along the line
+
     const focus = group.append("g")
         .attr("class", "focus")
         .style("display", "none");
@@ -240,7 +238,7 @@ function createGlucosePlot(container, x, y, width, height, type) {
         .attr("stroke", "white")
         .attr("stroke-width", 2);
 
-    // Add guide lines
+
     focus.append("line")
         .attr("class", "guide-x")
         .attr("stroke", type === "No Diabetes" ? "green" : type === "Pre-Diabetes" ? "orange" : "red")
@@ -264,11 +262,11 @@ function createGlucosePlot(container, x, y, width, height, type) {
         const xPos = xScale(d.timestamp);
         const yPos = yScale(d.glucose);
 
-        // Update circle position
+       
         focus.attr("transform", `translate(${xPos},${yPos})`);
         focus.style("display", null);
 
-        // Update guide line (vertical only)
+
         focus.select(".guide-x")
             .attr("x1", 0)
             .attr("y1", 0)
@@ -277,7 +275,7 @@ function createGlucosePlot(container, x, y, width, height, type) {
         
         const timeAfterMeal = d3.timeHour.count(data[0].timestamp, d.timestamp);
         
-        // Format gut health status for display
+     
         const gutHealthDisplay = state.gutHealth
             .split('-')[0]
             .charAt(0).toUpperCase() + state.gutHealth.split('-')[0].slice(1);
@@ -319,7 +317,7 @@ function createButtonContainer() {
         .style("opacity", "0")
         .style("visibility", "hidden");
 
-    // Create sub-containers for carb and gut health buttons
+   
     container.append("div")
         .attr("class", "carb-buttons")
         .style("margin-bottom", "10px");
@@ -359,73 +357,7 @@ function createButtons(container, options, callback, type = 'carb') {
     });
 }
 
-function getMealMacros(mealPhase, carbLevel) {
-    // Define macronutrient information for each meal and carb level
-    const macros = {
-        breakfast: {
-            "low-carb": {
-                carbs: "15g carbs",
-                protein: "20g protein",
-                fat: "15g fat",
-                examples: "Eggs with avocado"
-            },
-            "medium-carb": {
-                carbs: "30g carbs",
-                protein: "20g protein",
-                fat: "10g fat",
-                examples: "Oatmeal with berries"
-            },
-            "high-carb": {
-                carbs: "45g carbs",
-                protein: "15g protein",
-                fat: "5g fat",
-                examples: "Pancakes with syrup"
-            }
-        },
-        lunch: {
-            "low-carb": {
-                carbs: "20g carbs",
-                protein: "25g protein",
-                fat: "15g fat",
-                examples: "Grilled chicken salad"
-            },
-            "medium-carb": {
-                carbs: "45g carbs",
-                protein: "20g protein",
-                fat: "10g fat",
-                examples: "Turkey sandwich"
-            },
-            "high-carb": {
-                carbs: "60g carbs",
-                protein: "15g protein",
-                fat: "8g fat",
-                examples: "Pasta with marinara"
-            }
-        },
-        dinner: {
-            "low-carb": {
-                carbs: "20g carbs",
-                protein: "30g protein",
-                fat: "15g fat",
-                examples: "Grilled salmon with vegetables"
-            },
-            "medium-carb": {
-                carbs: "45g carbs",
-                protein: "25g protein",
-                fat: "12g fat",
-                examples: "Rice bowl with chicken"
-            },
-            "high-carb": {
-                carbs: "70g carbs",
-                protein: "20g protein",
-                fat: "10g fat",
-                examples: "Pizza"
-            }
-        }
-    };
-    
-    return macros[mealPhase][carbLevel];
-}
+
 
 function initSection(container, type) {
     const svg = container.append("svg")
@@ -445,11 +377,11 @@ function initSection(container, type) {
     }
 
     if (type === "meet-tim") {
-        // Draw Ben small in top-left
+       
         const benFigure = drawStickFigure(svg, width / 4, height / 6, 0.8);
         benFigure.attr("id", "ben-small");
         
-        // Add Ben's label
+       
         svg.append("text")
             .attr("x", width / 4)
             .attr("y", height / 6 + 90)
@@ -457,7 +389,7 @@ function initSection(container, type) {
             .style("font-size", "14px")
             .text("Ben - No Diabetes");
 
-        // Draw Tim large in center
+       
         const timFigure = drawStickFigure(svg, width / 2, height / 2, 2);
         timFigure.attr("id", "tim-intro");
         
@@ -465,11 +397,11 @@ function initSection(container, type) {
     }
 
     if (type === "meet-joey") {
-        // Draw Ben small in top-left
+        
         const benFigure = drawStickFigure(svg, width / 4, height / 6, 0.8);
         benFigure.attr("id", "ben-small");
         
-        // Add Ben's label
+      
         svg.append("text")
             .attr("x", width / 4)
             .attr("y", height / 6 + 90)
@@ -477,11 +409,11 @@ function initSection(container, type) {
             .style("font-size", "14px")
             .text("Ben - No Diabetes");
 
-        // Draw Tim small in top-center
+        
         const timFigure = drawStickFigure(svg, width / 2, height / 6, 0.8);
         timFigure.attr("id", "tim-small");
         
-        // Add Tim's label
+      
         svg.append("text")
             .attr("x", width / 2)
             .attr("y", height / 6 + 90)
@@ -489,7 +421,7 @@ function initSection(container, type) {
             .style("font-size", "14px")
             .text("Tim - Pre-Diabetes");
 
-        // Draw Joey large in center
+       
         const joeyFigure = drawStickFigure(svg, width / 2, height / 2, 2);
         joeyFigure.attr("id", "joey-intro");
         
@@ -497,7 +429,7 @@ function initSection(container, type) {
     }
 
     if (type === "compare") {
-        // Draw all three figures small at the top
+       
         const benFigure = drawStickFigure(svg, width / 4, height / 6, 0.8);
         benFigure.attr("id", "ben-small");
         
@@ -507,7 +439,7 @@ function initSection(container, type) {
         const joeyFigure = drawStickFigure(svg, 3 * width / 4, height / 6, 0.8);
         joeyFigure.attr("id", "joey-small");
 
-        // Add labels
+      
         svg.append("text")
             .attr("x", width / 4)
             .attr("y", height / 6 + 90)
@@ -540,7 +472,7 @@ function initSection(container, type) {
             return figure;
         });
 
-        // Add labels under each stick figure
+       
         ["Healthy", "Pre-Diabetic", "Diabetic"].forEach((type, i) => {
             const x = (i + 1) * (width / 4);
             svg.append("text")
@@ -557,7 +489,7 @@ function initSection(container, type) {
     }
     
     if (type === "reset-section") {
-        // Add title
+    
         svg.append("text")
             .attr("x", width / 2)
             .attr("y", height / 3)
@@ -566,13 +498,13 @@ function initSection(container, type) {
             .style("font-weight", "bold")
             .text("Want to try different choices?");
 
-        // Add reset button
+       
         const resetButton = svg.append("g")
             .attr("class", "reset-button")
             .style("cursor", "pointer")
             .on("click", handleReset);
 
-        // Button background
+       
         resetButton.append("rect")
             .attr("x", width / 2 - 100)
             .attr("y", height / 2 - 25)
@@ -584,7 +516,7 @@ function initSection(container, type) {
             .attr("stroke", "#388E3C")
             .attr("stroke-width", 2);
 
-        // Button text
+       
         resetButton.append("text")
             .attr("x", width / 2)
             .attr("y", height / 2 + 8)
@@ -593,7 +525,6 @@ function initSection(container, type) {
             .style("font-size", "20px")
             .text("Click to Reset");
 
-        // Add hover effect
         resetButton
             .on("mouseover", function() {
                 resetButton.select("rect")
@@ -764,7 +695,7 @@ let state = {
     }
 };
 
-// Load initial gut health data
+
 loadGutHealthData("average-gut-health");
 
 const buttonContainer = createButtonContainer();
@@ -773,7 +704,7 @@ function handleScroll(event) {
     const currentIndex = Math.floor(window.scrollY / window.innerHeight);
     const currentSection = sections[currentIndex];
     
-    // Only prevent scrolling if we're trying to scroll past the gut health section without making a selection
+   
     if (currentSection === "gut-health" && !state.gutHealth) {
         window.scrollTo({
             top: window.innerHeight * sections.indexOf("gut-health"),
@@ -805,9 +736,9 @@ scroller.setup({
         state.visualizations[currentSection] = initSection(d3.select(container), currentSection);
     }
 
-    // Show/hide button container and handle button creation based on section
+
     if (["breakfast-ben", "breakfast-tim", "breakfast-joey"].includes(currentSection)) {
-        // Only show carb buttons
+      
         buttonContainer.style("opacity", "1")
             .style("visibility", "visible")
             .classed("active", true);
@@ -817,7 +748,7 @@ scroller.setup({
             animateGlucosePlot(currentSection, value);
         }, 'carb');
         
-        // Set initial carb selection if not already set
+        
         if (!state.mealSelections.breakfast) {
             state.mealSelections.breakfast = "low-carb";
             buttonContainer.select('.carb-button[data-value="low-carb"]')
@@ -827,16 +758,16 @@ scroller.setup({
                 .classed("active", true);
         }
         
-        // Load data if not already loaded
+       
         if (!state.gutHealth) {
             state.gutHealth = "average-gut-health";
             loadGutHealthData("average-gut-health");
         }
         
-        // Animate the appropriate plots
+ 
         animateGlucosePlot(currentSection, state.mealSelections.breakfast || "low-carb");
     } else if (currentSection === "breakfast-all") {
-        // Show both carb and gut health buttons
+       
         buttonContainer.style("opacity", "1")
             .style("visibility", "visible")
             .classed("active", true);
@@ -851,14 +782,14 @@ scroller.setup({
             if (gutHealthValue !== state.gutHealth) {
                 state.gutHealth = gutHealthValue;
                 loadGutHealthData(gutHealthValue);
-                // After loading new gut health data, update the plots
+      
                 setTimeout(() => {
                     animateGlucosePlot(currentSection, state.mealSelections.breakfast || "low-carb");
                 }, 100);
             }
         }, 'gut-health');
         
-        // Set initial selections and highlight the active buttons
+   
         if (!state.gutHealth) {
             state.gutHealth = "average-gut-health";
         }
@@ -870,16 +801,15 @@ scroller.setup({
         }
         buttonContainer.select(`.carb-button[data-value="${state.mealSelections.breakfast}"]`)
             .classed("active", true);
-        
-        // Make sure we have data loaded
+   
         if (state.glucoseData.length === 0) {
             loadGutHealthData(state.gutHealth);
         }
         
-        // Animate all plots with current selections
+ 
         animateGlucosePlot(currentSection, state.mealSelections.breakfast || "low-carb");
     } else if (currentSection === "lunch" || currentSection === "dinner") {
-        // Show both carb and gut health buttons for lunch and dinner
+
         buttonContainer.style("opacity", "1")
             .style("visibility", "visible")
             .classed("active", true);
@@ -894,14 +824,14 @@ scroller.setup({
             if (gutHealthValue !== state.gutHealth) {
                 state.gutHealth = gutHealthValue;
                 loadGutHealthData(gutHealthValue);
-                // After loading new gut health data, update the plots
+      
                 setTimeout(() => {
                     animateGlucosePlot(currentSection, state.mealSelections[currentSection] || "low-carb");
                 }, 100);
             }
         }, 'gut-health');
         
-        // Set initial selections and highlight the active buttons
+      
         if (!state.gutHealth) {
             state.gutHealth = "average-gut-health";
         }
@@ -914,12 +844,12 @@ scroller.setup({
         buttonContainer.select(`.carb-button[data-value="${state.mealSelections[currentSection]}"]`)
             .classed("active", true);
         
-        // Make sure we have data loaded
+       
         if (state.glucoseData.length === 0) {
             loadGutHealthData(state.gutHealth);
         }
         
-        // Animate all plots with current selections
+     
         animateGlucosePlot(currentSection, state.mealSelections[currentSection] || "low-carb");
     } else if (!["breakfast", "lunch", "dinner"].includes(currentSection)) {
         // Hide button container for non-meal sections
@@ -927,8 +857,7 @@ scroller.setup({
             .style("visibility", "hidden")
             .classed("active", false);
     }
-    
-    // Show the appropriate visualizations
+
     if (state.visualizations[currentSection]) {
         const visualization = state.visualizations[currentSection];
         if (visualization.figures) {
@@ -943,19 +872,19 @@ scroller.setup({
         }
     }
 
-    // Update annotation content for meal sections
+
     if (currentSection === "breakfast-all" || currentSection === "lunch" || currentSection === "dinner") {
-        // Make sure we have data loaded
+ 
         if (state.glucoseData.length === 0) {
             loadGutHealthData(state.gutHealth || "average-gut-health");
         }
         
-        // Show both carb and gut health buttons
+     
         buttonContainer.style("opacity", "1")
             .style("visibility", "visible")
             .classed("active", true);
             
-        // Different carb options for breakfast vs lunch/dinner
+       
         const carbOptions = currentSection === "breakfast-all" ? 
             ["Low Carb", "Medium Carb"] : 
             ["Low Carb", "Medium Carb", "High Carb"];
@@ -970,14 +899,14 @@ scroller.setup({
             if (gutHealthValue !== state.gutHealth) {
                 state.gutHealth = gutHealthValue;
                 loadGutHealthData(gutHealthValue);
-                // After loading new gut health data, update the plots
+              
                 setTimeout(() => {
                     animateGlucosePlot(currentSection, state.mealSelections[currentSection === "breakfast-all" ? "breakfast" : currentSection] || "low-carb");
                 }, 100);
             }
         }, 'gut-health');
         
-        // Set initial selections and highlight the active buttons
+  
         if (!state.gutHealth) {
             state.gutHealth = "average-gut-health";
         }
@@ -990,8 +919,7 @@ scroller.setup({
         }
         buttonContainer.select(`.carb-button[data-value="${state.mealSelections[mealType]}"]`)
                 .classed("active", true);
-        
-        // Animate all plots with current selections
+    
         animateGlucosePlot(currentSection, state.mealSelections[mealType] || "low-carb");
     }
 }).onStepExit(({ element, index }) => {
@@ -1028,7 +956,7 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
     };
     const mappedMealPhase = mealMapping[mealPhase];
 
-    // Determine which diabetes types to show based on the current section
+ 
     let diabetesTypes = [];
     if (mealPhase === "breakfast-ben") {
         diabetesTypes = ["No Diabetes"];
@@ -1037,7 +965,7 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
     } else if (mealPhase === "breakfast-joey" || mealPhase === "breakfast-all" || mealPhase === "breakfast") {
         diabetesTypes = ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"];
     } else if (mealPhase === "lunch" || mealPhase === "dinner") {
-        // For lunch and dinner, show all three types
+      
         diabetesTypes = ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"];
     }
 
@@ -1045,7 +973,7 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
         const plot = plots[i];
         if (!plot) return;
 
-        // Filter data for this specific diabetes status, meal phase, and carb category
+    
         let dataForStatus = state.glucoseData.filter(d => {
             return d.mealPhase === mappedMealPhase && 
                    d.carbCategory === mappedCarb &&
@@ -1059,7 +987,7 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
             const endTime = new Date(startTime.getTime() + (3 * 60 * 60 * 1000));
 
             plot.xScale.domain([startTime, endTime]);
-            // Adjust y-scale domain to accommodate potentially higher glucose values for high carb meals
+         
             plot.yScale.domain([0, 400]);
 
             plot.xAxis.transition().duration(1000)
@@ -1079,16 +1007,15 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
                 .duration(1000)
                 .attr("d", plot.line);
 
-            // Remove any existing "no data" message
+        
             plot.group.selectAll(".no-data-message").remove();
         } else {
-            // Clear the path
+          
             plot.path.attr("d", null);
-            
-            // Remove any existing "no data" message
+          
             plot.group.selectAll(".no-data-message").remove();
             
-            // Add "no data" message
+         
             plot.group.append("text")
                 .attr("class", "no-data-message")
                 .attr("x", plot.xScale.range()[1] / 2)
@@ -1100,7 +1027,7 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
     });
 }
 
-// Update the style element
+
 const style = document.createElement('style');
 style.textContent = `
     body {
@@ -1159,14 +1086,13 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Add window resize handler
+
 window.addEventListener('resize', () => {
     const newScaleFactor = Math.min(
         window.innerWidth / baseWidth,
         window.innerHeight / baseHeight
     );
-    
-    // Update margin and dimensions
+
     margin.top = Math.round(80 * (window.innerHeight / baseHeight));
     margin.right = Math.round(50 * (window.innerWidth / baseWidth));
     margin.bottom = Math.round(150 * (window.innerHeight / baseHeight));
@@ -1175,7 +1101,7 @@ window.addEventListener('resize', () => {
     width = window.innerWidth - margin.left - margin.right;
     height = window.innerHeight - margin.top - margin.bottom;
     
-    // Redraw the current section
+
     const currentIndex = Math.floor(window.scrollY / window.innerHeight);
     const currentSection = sections[currentIndex];
     
@@ -1190,16 +1116,16 @@ window.addEventListener('resize', () => {
     }
 });
 
-// Check if there's a scroll target when the page loads
+
 window.addEventListener('load', function() {
     const scrollTarget = localStorage.getItem('scrollTarget');
     if (scrollTarget) {
-        // Clear the stored target
+     
         localStorage.removeItem('scrollTarget');
-        // Calculate the target scroll position
+ 
         const targetIndex = sections.indexOf(scrollTarget);
         if (targetIndex !== -1) {
-            // Scroll to the target section
+    
             window.scrollTo({
                 top: window.innerHeight * targetIndex,
                 behavior: 'smooth'
@@ -1209,10 +1135,10 @@ window.addEventListener('load', function() {
 });
 
 function handleReset() {
-    // Store the current gut health selection
+  
     const previousGutHealth = state.gutHealth;
     
-    // Store target section in localStorage
+  
     localStorage.setItem('scrollTarget', 'gut-health');
     
     // Reset the state
@@ -1233,16 +1159,16 @@ function handleReset() {
         }
     };
     
-    // Clear all active states
+
     d3.selectAll(".step").classed("active", false);
     d3.selectAll(".button").classed("active", false);
     
-    // Hide button container
+
     buttonContainer.style("opacity", "0")
         .style("visibility", "hidden")
         .classed("active", false);
 
-    // Clear any existing tooltips
+
     d3.selectAll('.tooltip, .meal-tooltip').remove();
 
     // Scroll to top first
@@ -1251,7 +1177,7 @@ function handleReset() {
         behavior: 'smooth'
     });
 
-    // Reload the page after a short delay to ensure smooth scrolling
+ 
     setTimeout(() => {
         window.location.reload();
     }, 500);
