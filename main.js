@@ -718,15 +718,6 @@ function initSection(container, type) {
     }
 
     if (type === "lunch" || type === "dinner") {
-        // Add title
-        svg.append("text")
-            .attr("x", width / 2)
-            .attr("y", 40)
-            .attr("text-anchor", "middle")
-            .style("font-size", "24px")
-            .style("font-weight", "bold")
-            .text(type === "lunch" ? "Let's see how they respond to lunch..." : "And finally, dinner...");
-
         const figures = ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"].map((diabetesType, i) => {
             const x = ((i * 2) + 1) * (width / 6);
             const figure = drawStickFigure(svg, x, height / 6);
