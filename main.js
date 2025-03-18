@@ -21,7 +21,8 @@ const sections = [
     "breakfast-joey",
     "breakfast-all",
     "lunch",
-    "dinner"
+    "dinner",
+    "reset-section"
 ];
 
 const backgroundColors = { 
@@ -36,7 +37,8 @@ const backgroundColors = {
     "breakfast-joey": "#FFE4B5",    // Same as breakfast
     "breakfast-all": "#FFE4B5",     // Same as breakfast
     lunch: "#87CEEB",         // Sky Blue - bright midday color
-    dinner: "#B19CD9"         // Medium purple - evening color
+    dinner: "#B19CD9",        // Medium purple - evening color
+    "reset-section": "#FFFACD"  // Light yellow for reset section
 };
 
 function updateVisualization() {
@@ -357,39 +359,72 @@ function createButtons(container, options, callback, type = 'carb') {
     });
 }
 
-function getMealMacros(section, carbValue) {
-    const mealInfo = {
-        lunch: {
+function getMealMacros(mealPhase, carbLevel) {
+    // Define macronutrient information for each meal and carb level
+    const macros = {
+        breakfast: {
             "low-carb": {
-                examples: "Grilled chicken salad with avocado",
-                carbs: "20g carbs",
-                protein: "35g protein",
-                fat: "15g fat"
+                carbs: "15g carbs",
+                protein: "20g protein",
+                fat: "15g fat",
+                examples: "Eggs with avocado"
             },
             "medium-carb": {
-                examples: "Turkey sandwich with whole grain bread",
+                carbs: "30g carbs",
+                protein: "20g protein",
+                fat: "10g fat",
+                examples: "Oatmeal with berries"
+            },
+            "high-carb": {
                 carbs: "45g carbs",
-                protein: "30g protein",
-                fat: "12g fat"
+                protein: "15g protein",
+                fat: "5g fat",
+                examples: "Pancakes with syrup"
+            }
+        },
+        lunch: {
+            "low-carb": {
+                carbs: "20g carbs",
+                protein: "25g protein",
+                fat: "15g fat",
+                examples: "Grilled chicken salad"
+            },
+            "medium-carb": {
+                carbs: "45g carbs",
+                protein: "20g protein",
+                fat: "10g fat",
+                examples: "Turkey sandwich"
+            },
+            "high-carb": {
+                carbs: "60g carbs",
+                protein: "15g protein",
+                fat: "8g fat",
+                examples: "Pasta with marinara"
             }
         },
         dinner: {
             "low-carb": {
-                examples: "Salmon with roasted vegetables",
-                carbs: "25g carbs",
-                protein: "40g protein",
-                fat: "20g fat"
+                carbs: "20g carbs",
+                protein: "30g protein",
+                fat: "15g fat",
+                examples: "Grilled salmon with vegetables"
             },
             "medium-carb": {
-                examples: "Chicken stir-fry with brown rice",
-                carbs: "50g carbs",
-                protein: "35g protein",
-                fat: "15g fat"
+                carbs: "45g carbs",
+                protein: "25g protein",
+                fat: "12g fat",
+                examples: "Rice bowl with chicken"
+            },
+            "high-carb": {
+                carbs: "70g carbs",
+                protein: "20g protein",
+                fat: "10g fat",
+                examples: "Pizza"
             }
         }
     };
     
-    return mealInfo[section][carbValue];
+    return macros[mealPhase][carbLevel];
 }
 
 function initSection(container, type) {
@@ -521,6 +556,61 @@ function initSection(container, type) {
         return { figures };
     }
     
+    if (type === "reset-section") {
+        // Add title
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", height / 3)
+            .attr("text-anchor", "middle")
+            .style("font-size", "32px")
+            .style("font-weight", "bold")
+            .text("Want to try different choices?");
+
+        // Add reset button
+        const resetButton = svg.append("g")
+            .attr("class", "reset-button")
+            .style("cursor", "pointer")
+            .on("click", handleReset);
+
+        // Button background
+        resetButton.append("rect")
+            .attr("x", width / 2 - 100)
+            .attr("y", height / 2 - 25)
+            .attr("width", 200)
+            .attr("height", 50)
+            .attr("rx", 25)
+            .attr("ry", 25)
+            .attr("fill", "#4CAF50")
+            .attr("stroke", "#388E3C")
+            .attr("stroke-width", 2);
+
+        // Button text
+        resetButton.append("text")
+            .attr("x", width / 2)
+            .attr("y", height / 2 + 8)
+            .attr("text-anchor", "middle")
+            .attr("fill", "white")
+            .style("font-size", "20px")
+            .text("Click to Reset");
+
+        // Add hover effect
+        resetButton
+            .on("mouseover", function() {
+                resetButton.select("rect")
+                    .transition()
+                    .duration(200)
+                    .attr("fill", "#45a049");
+            })
+            .on("mouseout", function() {
+                resetButton.select("rect")
+                    .transition()
+                    .duration(200)
+                    .attr("fill", "#4CAF50");
+            });
+
+        return { figures: [resetButton] };
+    }
+    
     if (type === "breakfast-ben") {
         const figure = drawStickFigure(svg, width / 2, height / 6);
         figure.attr("id", "breakfast-ben-figure");
@@ -635,9 +725,8 @@ function initSection(container, type) {
             .attr("text-anchor", "middle")
             .style("font-size", "24px")
             .style("font-weight", "bold")
-            .text(type === "lunch" ? "It's time for lunch. Do you want something light, filling, or somewhere in between?" : "And finally, dinner...");
+            .text(type === "lunch" ? "Let's see how they respond to lunch..." : "And finally, dinner...");
 
-        // Draw all three figures with their labels
         const figures = ["No Diabetes", "Pre-Diabetes", "Type 2 Diabetes"].map((diabetesType, i) => {
             const x = ((i * 2) + 1) * (width / 6);
             const figure = drawStickFigure(svg, x, height / 6);
@@ -655,7 +744,6 @@ function initSection(container, type) {
             return figure;
         });
 
-        // Create glucose plots for all three characters
         const plotWidth = Math.round(400 * scaleFactor);
         const plotHeight = Math.round(300 * scaleFactor);
         
@@ -663,35 +751,6 @@ function initSection(container, type) {
             const x = ((i * 2) + 1) * (width / 6) - (plotWidth / 2);
             return createGlucosePlot(svg, x, height / 2.5, plotWidth, plotHeight, diabetesType);
         });
-
-        // Add meal information below the plots
-        if (type === "lunch") {
-            const mealInfo = svg.append("g")
-                .attr("class", "meal-info")
-                .attr("transform", `translate(${width/2}, ${height - 100})`);
-
-            mealInfo.append("text")
-                .attr("text-anchor", "middle")
-                .attr("y", 0)
-                .style("font-size", "16px")
-                .style("font-weight", "bold")
-                .text("Lunch Options:");
-
-            const lowCarb = getMealMacros("lunch", "low-carb");
-            const mediumCarb = getMealMacros("lunch", "medium-carb");
-
-            mealInfo.append("text")
-                .attr("text-anchor", "middle")
-                .attr("y", 25)
-                .style("font-size", "14px")
-                .text(`Light: ${lowCarb.examples} (${lowCarb.carbs})`);
-
-            mealInfo.append("text")
-                .attr("text-anchor", "middle")
-                .attr("y", 45)
-                .style("font-size", "14px")
-                .text(`Filling: ${mediumCarb.examples} (${mediumCarb.carbs})`);
-        }
 
         return { figures, plots };
     }
@@ -829,25 +888,14 @@ scroller.setup({
         // Animate all plots with current selections
         animateGlucosePlot(currentSection, state.mealSelections.breakfast || "low-carb");
     } else if (currentSection === "lunch" || currentSection === "dinner") {
-        // Show both carb and gut health buttons
+        // Show both carb and gut health buttons for lunch and dinner
         buttonContainer.style("opacity", "1")
             .style("visibility", "visible")
             .classed("active", true);
             
-        createButtons(buttonContainer, ["Light Meal", "Filling Meal"], (value) => {
-            const carbValue = value === "Light Meal" ? "low-carb" : "medium-carb";
-            state.mealSelections[currentSection] = carbValue;
-            animateGlucosePlot(currentSection, carbValue);
-            
-            // Update meal info text
-            const mealInfo = d3.select(".meal-info");
-            if (mealInfo.node()) {
-                const macros = getMealMacros(currentSection, carbValue);
-                mealInfo.select("text:nth-child(1)")
-                    .text(`${value}: ${macros.examples}`);
-                mealInfo.select("text:nth-child(2)")
-                    .text(`Nutrition: ${macros.carbs}, ${macros.protein}, ${macros.fat}`);
-            }
+        createButtons(buttonContainer, ["Low Carb", "Medium Carb"], (value) => {
+            state.mealSelections[currentSection] = value;
+            animateGlucosePlot(currentSection, value);
         }, 'carb');
         
         createButtons(buttonContainer, ["Good Gut Health", "Average Gut Health", "Bad Gut Health"], (value) => {
@@ -871,13 +919,9 @@ scroller.setup({
         
         if (!state.mealSelections[currentSection]) {
             state.mealSelections[currentSection] = "low-carb";
-            buttonContainer.select('.carb-button[data-value="light-meal"]')
-                .classed("active", true);
-        } else {
-            const buttonValue = state.mealSelections[currentSection] === "low-carb" ? "light-meal" : "filling-meal";
-            buttonContainer.select(`.carb-button[data-value="${buttonValue}"]`)
-                .classed("active", true);
         }
+        buttonContainer.select(`.carb-button[data-value="${state.mealSelections[currentSection]}"]`)
+            .classed("active", true);
         
         // Make sure we have data loaded
         if (state.glucoseData.length === 0) {
@@ -906,6 +950,53 @@ scroller.setup({
                 plot.group.style("opacity", 1);
             });
         }
+    }
+
+    // Update annotation content for meal sections
+    if (currentSection === "breakfast-all" || currentSection === "lunch" || currentSection === "dinner") {
+        // Make sure we have data loaded
+        if (state.glucoseData.length === 0) {
+            loadGutHealthData(state.gutHealth || "average-gut-health");
+        }
+        
+        // Show both carb and gut health buttons
+        buttonContainer.style("opacity", "1")
+            .style("visibility", "visible")
+            .classed("active", true);
+            
+        createButtons(buttonContainer, ["Low Carb", "Medium Carb"], (value) => {
+            state.mealSelections[currentSection === "breakfast-all" ? "breakfast" : currentSection] = value;
+            animateGlucosePlot(currentSection, value);
+        }, 'carb');
+        
+        createButtons(buttonContainer, ["Good Gut Health", "Average Gut Health", "Bad Gut Health"], (value) => {
+            const gutHealthValue = value.toLowerCase().replace(" ", "-");
+            if (gutHealthValue !== state.gutHealth) {
+                state.gutHealth = gutHealthValue;
+                loadGutHealthData(gutHealthValue);
+                // After loading new gut health data, update the plots
+                setTimeout(() => {
+                    animateGlucosePlot(currentSection, state.mealSelections[currentSection === "breakfast-all" ? "breakfast" : currentSection] || "low-carb");
+                }, 100);
+            }
+        }, 'gut-health');
+        
+        // Set initial selections and highlight the active buttons
+        if (!state.gutHealth) {
+            state.gutHealth = "average-gut-health";
+        }
+        buttonContainer.select(`.gut-health-button[data-value="${state.gutHealth}"]`)
+            .classed("active", true);
+        
+        const mealType = currentSection === "breakfast-all" ? "breakfast" : currentSection;
+        if (!state.mealSelections[mealType]) {
+            state.mealSelections[mealType] = "low-carb";
+        }
+        buttonContainer.select(`.carb-button[data-value="${state.mealSelections[mealType]}"]`)
+            .classed("active", true);
+        
+        // Animate all plots with current selections
+        animateGlucosePlot(currentSection, state.mealSelections[mealType] || "low-carb");
     }
 }).onStepExit(({ element, index }) => {
     const currentSection = sections[index];
@@ -1101,5 +1192,72 @@ window.addEventListener('resize', () => {
         }
     }
 });
+
+// Check if there's a scroll target when the page loads
+window.addEventListener('load', function() {
+    const scrollTarget = localStorage.getItem('scrollTarget');
+    if (scrollTarget) {
+        // Clear the stored target
+        localStorage.removeItem('scrollTarget');
+        // Calculate the target scroll position
+        const targetIndex = sections.indexOf(scrollTarget);
+        if (targetIndex !== -1) {
+            // Scroll to the target section
+            window.scrollTo({
+                top: window.innerHeight * targetIndex,
+                behavior: 'smooth'
+            });
+        }
+    }
+});
+
+function handleReset() {
+    // Store the current gut health selection
+    const previousGutHealth = state.gutHealth;
+    
+    // Store target section in localStorage
+    localStorage.setItem('scrollTarget', 'gut-health');
+    
+    // Reset the state
+    state = {
+        glucoseData: [],
+        gutHealth: null,
+        mealSelections: {
+            breakfast: null,
+            lunch: null,
+            dinner: null
+        },
+        visualizations: {
+            intro: null,
+            gutHealth: null,
+            breakfast: null,
+            lunch: null,
+            dinner: null
+        }
+    };
+    
+    // Clear all active states
+    d3.selectAll(".step").classed("active", false);
+    d3.selectAll(".button").classed("active", false);
+    
+    // Hide button container
+    buttonContainer.style("opacity", "0")
+        .style("visibility", "hidden")
+        .classed("active", false);
+
+    // Clear any existing tooltips
+    d3.selectAll('.tooltip, .meal-tooltip').remove();
+
+    // Scroll to top first
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+
+    // Reload the page after a short delay to ensure smooth scrolling
+    setTimeout(() => {
+        window.location.reload();
+    }, 500);
+}
 
 
