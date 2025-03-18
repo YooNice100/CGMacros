@@ -884,13 +884,13 @@ scroller.setup({
             .style("visibility", "visible")
             .classed("active", true);
             
-        createButtons(buttonContainer, ["Low Carb", "Medium Carb"], (value) => {
+        createButtons(buttonContainer, ["Low Carb", "Medium Carb", "High Carb"], (value) => {
             state.mealSelections[currentSection] = value;
             animateGlucosePlot(currentSection, value);
         }, 'carb');
         
-            createButtons(buttonContainer, ["Good Gut Health", "Average Gut Health", "Bad Gut Health"], (value) => {
-                const gutHealthValue = value.toLowerCase().replace(" ", "-");
+        createButtons(buttonContainer, ["Good Gut Health", "Average Gut Health", "Bad Gut Health"], (value) => {
+            const gutHealthValue = value.toLowerCase().replace(" ", "-");
             if (gutHealthValue !== state.gutHealth) {
                 state.gutHealth = gutHealthValue;
                 loadGutHealthData(gutHealthValue);
@@ -953,9 +953,14 @@ scroller.setup({
         // Show both carb and gut health buttons
         buttonContainer.style("opacity", "1")
             .style("visibility", "visible")
-                .classed("active", true);
+            .classed("active", true);
             
-        createButtons(buttonContainer, ["Low Carb", "Medium Carb"], (value) => {
+        // Different carb options for breakfast vs lunch/dinner
+        const carbOptions = currentSection === "breakfast-all" ? 
+            ["Low Carb", "Medium Carb"] : 
+            ["Low Carb", "Medium Carb", "High Carb"];
+            
+        createButtons(buttonContainer, carbOptions, (value) => {
             state.mealSelections[currentSection === "breakfast-all" ? "breakfast" : currentSection] = value;
             animateGlucosePlot(currentSection, value);
         }, 'carb');
@@ -1054,6 +1059,7 @@ function animateGlucosePlot(mealPhase, selectedCarb) {
             const endTime = new Date(startTime.getTime() + (3 * 60 * 60 * 1000));
 
             plot.xScale.domain([startTime, endTime]);
+            // Adjust y-scale domain to accommodate potentially higher glucose values for high carb meals
             plot.yScale.domain([0, 400]);
 
             plot.xAxis.transition().duration(1000)
