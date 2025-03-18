@@ -341,24 +341,18 @@ function createButtons(container, options, callback, type = 'carb') {
     }
     
     options.forEach((option, i) => {
-        const value = option.toLowerCase().replace(/\s+/g, "-");
-        const button = buttonContainer.append("button")
+        buttonContainer.append("button")
             .attr("class", `button ${type}-button`)
             .text(option)
-            .attr("data-value", value)
+            .attr("data-value", option.toLowerCase().replace(" ", "-"))
             .style("opacity", "1")
             .style("transform", "translateY(0)")
             .on("click", function() {
+                const value = d3.select(this).attr("data-value");
                 buttonContainer.selectAll(`.${type}-button`).classed("active", false);
                 d3.select(this).classed("active", true);
                 callback(value);
             });
-
-        // Set initial active state for default selections
-        if ((type === 'gut-health' && value === "average-gut-health") ||
-            (type === 'carb' && value === "low-carb")) {
-            button.classed("active", true);
-        }
     });
 }
 
@@ -780,41 +774,42 @@ scroller.setup({
             ["Low Carb", "Medium Carb"] : 
             ["Low Carb", "Medium Carb", "High Carb"];
             
-        // Set default state values if not already set
-        if (!state.gutHealth) {
-            state.gutHealth = "average-gut-health";
-            loadGutHealthData("average-gut-health");
-        }
-        
-        if (!state.mealSelections[currentSection]) {
-            state.mealSelections[currentSection] = "low-carb";
-        }
-        
-        // Create buttons with current selections
+        // Create carb level buttons
         createButtons(buttonContainer, buttonOptions, (value) => {
             state.mealSelections[currentSection] = value;
             animateGlucosePlot(currentSection, value);
         }, 'carb');
         
+        // Create gut health buttons
         createButtons(buttonContainer, ["Good Gut Health", "Average Gut Health", "Bad Gut Health"], (value) => {
-            const gutHealthValue = value.toLowerCase().replace(/\s+/g, "-");
+            const gutHealthValue = value.toLowerCase().replace(" ", "-");
             if (gutHealthValue !== state.gutHealth) {
                 state.gutHealth = gutHealthValue;
                 loadGutHealthData(gutHealthValue);
             }
         }, 'gut-health');
         
-        // Ensure proper highlighting of current selections
-        buttonContainer.selectAll('.gut-health-button').classed("active", false);
-        buttonContainer.select(`.gut-health-button[data-value="${state.gutHealth}"]`)
-            .classed("active", true);
+        // Set initial selections if not already set
+        if (!state.gutHealth) {
+            state.gutHealth = "average-gut-health";
+            buttonContainer.select('.gut-health-button[data-value="average-gut-health"]')
+                .classed("active", true);
+            loadGutHealthData("average-gut-health");
+        } else {
+            buttonContainer.select(`.gut-health-button[data-value="${state.gutHealth}"]`)
+                .classed("active", true);
+        }
         
-        buttonContainer.selectAll('.carb-button').classed("active", false);
-        buttonContainer.select(`.carb-button[data-value="${state.mealSelections[currentSection]}"]`)
-            .classed("active", true);
-        
-        // Ensure the plots are updated
-        animateGlucosePlot(currentSection, state.mealSelections[currentSection]);
+        if (!state.mealSelections[currentSection]) {
+            state.mealSelections[currentSection] = "low-carb";
+            buttonContainer.select('.carb-button[data-value="low-carb"]')
+                .classed("active", true);
+            animateGlucosePlot(currentSection, "low-carb");
+        } else {
+            buttonContainer.select(`.carb-button[data-value="${state.mealSelections[currentSection]}"]`)
+                .classed("active", true);
+            animateGlucosePlot(currentSection, state.mealSelections[currentSection]);
+        }
     } else {
         // Hide button container for non-meal sections
         buttonContainer.style("opacity", "0")
